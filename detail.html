@@ -1,176 +1,250 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ดูข้อมูลการลงทะเบียน</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Registration Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- [เพิ่มใหม่] Flatpickr (Date Picker) CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-        }
-        /* Style สำหรับลายเซ็นในตาราง */
-        .signature-img {
-            max-width: 120px;
-            max-height: 40px;
-            object-fit: contain;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        /* Flatpickr custom style for Thai */
+        .flatpickr-calendar {
+            font-family: 'Inter', sans-serif;
         }
     </style>
-    <!-- โหลดฟอนต์ Sarabun -->
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8">
 
-    <div class="w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">ข้อมูลการลงทะเบียน FlowRider®</h1>
+<body class="bg-gray-100 font-sans p-4 md:p-8">
 
-        <!-- Search Bar -->
-        <div class="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-gray-50 rounded-lg border">
-            <div class="flex-1">
-                <label for="search-date" class="block text-sm font-medium text-gray-700 mb-1">เลือกวันที่ (ที่ลงทะเบียน)</label>
-                <input type="date" id="search-date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <div class="flex-shrink-0 flex items-end">
-                <button id="search-button" class="w-full md:w-auto py-2 px-6 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300">
+    <div class="max-w-6xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                รายละเอียดการลงทะเบียน (Registration Details)
+            </h1>
+            <!-- [เพิ่มใหม่] Search Controls -->
+            <div class="flex items-center gap-2">
+                <input type="text" id="date-picker" placeholder="กรุณาเลือกวันที่..."
+                    class="border border-gray-300 rounded-lg p-2 text-center w-48">
+                <button id="search-button"
+                    class="bg-blue-600 text-white py-2 px-5 rounded-lg shadow hover:bg-blue-700 transition duration-300">
                     ค้นหา
                 </button>
             </div>
         </div>
 
         <!-- Loading Spinner -->
-        <div id="loading-spinner" class="text-center p-8 hidden">
-            <div class="inline-block w-12 h-12 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+        <div id="loading" class="text-center p-8 hidden">
+            <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
             <p class="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
         </div>
 
-        <!-- Data Table Container -->
-        <div id="data-container" class="overflow-x-auto">
-            <!-- Table will be inserted here by JavaScript -->
+        <!-- Message Area -->
+        <div id="message" class="text-center p-8 text-lg text-gray-500 hidden"></div>
+
+        <!-- Results Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead class="bg-gray-50">
+                    <tr id="results-header">
+                        <!-- Headers will be dynamically inserted here -->
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    <!-- Data rows will be dynamically inserted here -->
+                </tbody>
+            </table>
         </div>
 
+        <!-- [เพิ่มใหม่] Pagination Controls -->
+        <div id="pagination-controls" class="mt-6 flex justify-between items-center hidden">
+            <button id="prev-page"
+                class="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; ก่อนหน้า
+            </button>
+            <span id="page-info" class="text-sm font-medium text-gray-700"></span>
+            <button id="next-page"
+                class="bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                ต่อไป &rarr;
+            </button>
+        </div>
     </div>
 
-    <!-- ===== JavaScript ===== -->
+    <!-- [เพิ่มใหม่] Flatpickr (Date Picker) JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
     <script>
-        // !!! สำคัญ: ใช้ URL เดียวกันกับใน index.html !!!
+        // !!! [สำคัญ] กรุณาเปลี่ยน URL นี้ให้เป็น URL ที่คุณ Deploy ไว้ !!!
         const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
 
+        // [เพิ่มใหม่] Global state for pagination
+        let currentPage = 1;
+        let currentDate = ''; // เก็บวันที่ค้นหาล่าสุด
+
+        // DOM Elements
         const searchButton = document.getElementById('search-button');
-        const searchDateInput = document.getElementById('search-date');
-        const dataContainer = document.getElementById('data-container');
-        const loadingSpinner = document.getElementById('loading-spinner');
+        const datePickerEl = document.getElementById('date-picker');
+        const resultsHeader = document.getElementById('results-header');
+        const resultsBody = document.getElementById('results-body');
+        const messageEl = document.getElementById('message');
+        const loadingEl = document.getElementById('loading');
+        
+        // [เพิ่มใหม่] Pagination Elements
+        const paginationControls = document.getElementById('pagination-controls');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
 
-        // --- ตั้งค่าวันที่เริ่มต้นเป็นวันนี้ ---
-        function setInitialDate() {
-            const today = new Date();
-            // ปรับ Timezone ของไทย (GMT+7)
-            today.setMinutes(today.getMinutes() - today.getTimezoneOffset() + 420);
-            searchDateInput.value = today.toISOString().split('T')[0];
-        }
+        // Initialize Flatpickr (Date Picker)
+        const fp = flatpickr(datePickerEl, {
+            locale: "th", // ใช้ภาษาไทย
+            dateFormat: "d/m/Y", // Format วันที่ DD/MM/YYYY
+        });
 
-        // --- แปลง Date YYYY-MM-DD เป็น DD/MM/YYYY ---
-        function formatInputDate(dateString) {
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
-        }
-
-        // --- ฟังก์ชันหลักในการดึงข้อมูล ---
-        async function fetchData() {
-            const selectedDate = searchDateInput.value;
-            if (!selectedDate) {
-                alert('กรุณาเลือกวันที่');
+        // --- [แก้ไข] Event Listeners ---
+        searchButton.onclick = () => {
+            currentDate = datePickerEl.value; // เก็บวันที่ที่ค้นหา
+            if (!currentDate) {
+                messageEl.textContent = 'กรุณาเลือกวันที่ก่อนค้นหา';
+                messageEl.classList.remove('hidden');
                 return;
             }
+            currentPage = 1; // เริ่มค้นหาใหม่ที่หน้า 1 เสมอ
+            fetchData(currentDate, currentPage);
+        };
 
-            // แปลง format วันที่ก่อนส่ง
-            const formattedDate = formatInputDate(selectedDate);
-            
-            showLoading(true);
-            dataContainer.innerHTML = '';
+        prevButton.onclick = () => {
+            if (currentPage > 1) {
+                fetchData(currentDate, currentPage - 1);
+            }
+        };
+
+        nextButton.onclick = () => {
+            // (การตรวจสอบว่าเกินหน้าสุดท้ายหรือไม่ จะทำใน updatePaginationControls)
+            fetchData(currentDate, currentPage + 1);
+        };
+
+
+        /**
+         * [แก้ไข] ฟังก์ชันสำหรับดึงข้อมูลและแสดงผล
+         * @param {string} date - วันที่ (DD/MM/YYYY)
+         * @param {number} page - หมายเลขหน้า
+         */
+        async function fetchData(date, page) {
+            loadingEl.classList.remove('hidden');
+            messageEl.classList.add('hidden');
+            resultsBody.innerHTML = '';
+            resultsHeader.innerHTML = '';
+            paginationControls.classList.add('hidden'); // ซ่อนปุ่มเปลี่ยนหน้าไว้ก่อน
 
             try {
-                // สร้าง URL สำหรับค้นหาข้อมูล
-                const fetchUrl = `${appScriptUrl}?action=getData&date=${formattedDate}`;
+                // [แก้ไข] ส่ง parameter 'page' ไปด้วย
+                const response = await fetch(`${appScriptUrl}?action=getData&date=${date}&page=${page}`);
                 
-                const response = await fetch(fetchUrl);
                 if (!response.ok) {
-                    throw new Error(`Network error: ${response.statusText}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const responseData = await response.json(); // [แก้ไข] รับ JSON ก้อนใหม่
+
+                if (responseData.status === 'error') {
+                    throw new Error(responseData.message);
+                }
+
+                const data = responseData.data; // [แก้ไข] ข้อมูล 5 แถว
+                const pagination = responseData.pagination; // [แก้ไข] ข้อมูลหน้า
                 
-                if (data.status === 'error') {
-                    throw new Error(data.message);
+                currentPage = pagination.currentPage; // [แก้ไข] อัปเดตหน้าปัจจุบัน
+
+                if (data.length === 0) {
+                    messageEl.textContent = 'ไม่พบข้อมูลในวันที่เลือก';
+                    messageEl.classList.remove('hidden');
+                    return;
                 }
 
-                renderTable(data);
+                // แสดงผลข้อมูล
+                displayData(data);
+                // แสดงผลปุ่มเปลี่ยนหน้า
+                updatePaginationControls(pagination);
 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                dataContainer.innerHTML = `<p class="text-center text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
+                messageEl.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                messageEl.classList.remove('hidden');
             } finally {
-                showLoading(false);
+                loadingEl.classList.add('hidden');
             }
         }
 
-        // --- ฟังก์ชันแสดงผลตาราง ---
-        function renderTable(data) {
-            if (data.length === 0) {
-                dataContainer.innerHTML = `<p class="text-center text-gray-500">ไม่พบข้อมูลในวันที่เลือก</p>`;
+        /**
+         * [เพิ่มใหม่] ฟังก์ชันสำหรับแสดงผลข้อมูลในตาราง
+         */
+        function displayData(data) {
+            resultsBody.innerHTML = '';
+            resultsHeader.innerHTML = '';
+
+            // สร้าง Headers
+            const headers = Object.keys(data[0]);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = header;
+                resultsHeader.appendChild(th);
+            });
+
+            // สร้าง Rows
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-200 hover:bg-gray-50';
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
+                    
+                    let content = row[header];
+                    
+                    // ตรวจสอบถ้าเป็น Base64 Image (ลายเซ็น)
+                    if (header.toLowerCase() === 'ลายเซ็น' && content.startsWith('data:image/')) {
+                        const img = document.createElement('img');
+                        img.src = content;
+                        img.alt = 'Signature';
+                        img.className = 'h-8 w-auto'; // ปรับขนาดตามความเหมาะสม
+                        td.appendChild(img);
+                    } else {
+                        td.textContent = content;
+                    }
+                    tr.appendChild(td);
+                });
+                resultsBody.appendChild(tr);
+            });
+        }
+
+        /**
+         * [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตปุ่ม Pagination
+         */
+        function updatePaginationControls(pagination) {
+            // ถ้ามีแค่หน้าเดียว (หรือไม่มีข้อมูล) ไม่ต้องแสดงปุ่ม
+            if (pagination.totalPages <= 1) {
+                paginationControls.classList.add('hidden');
                 return;
             }
-
-            // ดึง Headers (Key) จาก object แรก
-            const headers = Object.keys(data[0]);
-
-            let tableHTML = '<table class="min-w-full divide-y divide-gray-200 border">';
             
-            // สร้าง Header ของตาราง
-            tableHTML += '<thead class="bg-gray-50">';
-            tableHTML += '<tr>';
-            headers.forEach(header => {
-                tableHTML += `<th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
-            });
-            tableHTML += '</tr>';
-            tableHTML += '</thead>';
-
-            // สร้าง Body ของตาราง
-            tableHTML += '<tbody class="bg-white divide-y divide-gray-200">';
-            data.forEach(row => {
-                tableHTML += '<tr>';
-                headers.forEach(header => {
-                    let cellData = row[header];
-
-                    // ตรวจสอบถ้าเป็นคอลัมน์ "ลายเซ็น"
-                    if (header.toLowerCase() === 'ลายเซ็น' && cellData.startsWith('data:image')) {
-                        cellData = `<img src="${cellData}" alt="ลายเซ็น" class="signature-img">`;
-                    }
-                    
-                    tableHTML += `<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${cellData}</td>`;
-                });
-                tableHTML += '</tr>';
-            });
-            tableHTML += '</tbody>';
-            tableHTML += '</table>';
-
-            dataContainer.innerHTML = tableHTML;
+            paginationControls.classList.remove('hidden');
+            pageInfo.textContent = `หน้า ${pagination.currentPage} / ${pagination.totalPages}`;
+            
+            // เปิด/ปิด ปุ่ม
+            prevButton.disabled = (pagination.currentPage === 1);
+            nextButton.disabled = (pagination.currentPage === pagination.totalPages);
         }
-
-        function showLoading(isLoading) {
-            loadingSpinner.classList.toggle('hidden', !isLoading);
-        }
-
-        // --- Event Listeners ---
-        searchButton.addEventListener('click', fetchData);
-
-        // --- Initial Load ---
-        setInitialDate(); // ตั้งวันที่เป็นวันนี้
-        fetchData(); // โหลดข้อมูลของวันนี้ทันที
 
     </script>
 </body>
 </html>
+
