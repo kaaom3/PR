@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Registration Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .flatpickr-calendar { font-family: 'Inter', sans-serif; }
+        /* Modal styles */
+        .modal { transition: opacity 0.25s ease; }
+        .modal-active { opacity: 1; visibility: visible; }
+        .modal-inactive { opacity: 0; visibility: hidden; }
+        .modal-content {
+            transition: transform 0.25s ease;
+            transform: translateY(-100px);
+        }
+        .modal-active .modal-content {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                Admin Panel (จัดการข้อมูลลงทะเบียน)
+            </h1>
+            <div class="flex items-center gap-2">
+                <input type="text" id="date-picker" placeholder="กรุณาเลือกวันที่..."
+                    class="border border-gray-300 rounded-lg p-2 text-center w-48">
+                <button id="search-button"
+                    class="bg-blue-600 text-white py-2 px-5 rounded-lg shadow hover:bg-blue-700 transition duration-300">
+                    ค้นหา
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="text-center p-8 hidden">
+            <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <p class="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+
+        <!-- Message Area -->
+        <div id="message" class="text-center p-8 text-lg text-gray-500 hidden"></div>
+
+        <!-- Results Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead class="bg-gray-50">
+                    <tr id="results-header">
+                        <!-- Headers will be dynamically inserted here -->
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    <!-- Data rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="mt-6 flex justify-between items-center hidden">
+            <button id="prev-page"
+                class="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                &larr; ก่อนหน้า
+            </button>
+            <span id="page-info" class="text-sm font-medium text-gray-700"></span>
+            <button id="next-page"
+                class="bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                ต่อไป &rarr;
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal modal-inactive fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div class="modal-content bg-white rounded-2xl shadow-lg w-full max-w-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">แก้ไขข้อมูล</h2>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ชื่อ</label>
+                        <input type="text" id="edit-ชื่อ" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">นามสกุล</label>
+                        <input type="text" id="edit-นามสกุล" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">วันเกิด (DD/MM/YYYY)</label>
+                        <input type="text" id="edit-วันเกิด" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">อายุ</label>
+                        <input type="text" id="edit-อายุ" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ผู้ติดต่อฉุกเฉิน</label>
+                        <input type="text" id="edit-ชื่อผู้ติดต่อกรณีฉุกเฉิน" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">เบอร์ติดต่อฉุกเฉิน</label>
+                        <input type="text" id="edit-หมายเลขติดต่อกรณีฉุกเฉิน" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+                <!-- Signature and other fields are read-only for now -->
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" id="cancel-edit" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" id="save-edit" class="bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700">
+                        บันทึกการเปลี่ยนแปลง
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- PDF Loading Modal -->
+    <div id="pdf-modal" class="modal modal-inactive fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75">
+         <div class="modal-content bg-white rounded-2xl shadow-lg w-full max-w-sm p-8 text-center">
+             <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <h2 class="text-xl font-bold mt-4">กำลังสร้าง PDF...</h2>
+            <p class="text-gray-600 mt-2">กรุณารอสักครู่ อาจใช้เวลาถึง 30 วินาที</p>
+         </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+
+    <script>
+        // !!! [สำคัญ] กรุณาเปลี่ยน URL นี้ให้เป็น URL ที่คุณ Deploy ไว้ !!!
+        const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
+
+        let currentPage = 1;
+        let currentDate = '';
+        let allFetchedData = []; // Store data for editing
+
+        // DOM Elements
+        const searchButton = document.getElementById('search-button');
+        const datePickerEl = document.getElementById('date-picker');
+        const resultsHeader = document.getElementById('results-header');
+        const resultsBody = document.getElementById('results-body');
+        const messageEl = document.getElementById('message');
+        const loadingEl = document.getElementById('loading');
+        
+        const paginationControls = document.getElementById('pagination-controls');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+        
+        // Modal Elements
+        const editModal = document.getElementById('edit-modal');
+        const pdfModal = document.getElementById('pdf-modal');
+        const editForm = document.getElementById('edit-form');
+        const cancelEditButton = document.getElementById('cancel-edit');
+        const saveEditButton = document.getElementById('save-edit');
+
+        // Initialize Flatpickr
+        const fp = flatpickr(datePickerEl, {
+            locale: "th",
+            dateFormat: "d/m/Y",
+        });
+
+        // --- Event Listeners ---
+        searchButton.onclick = () => {
+            currentDate = datePickerEl.value;
+            if (!currentDate) {
+                showMessage('กรุณาเลือกวันที่ก่อนค้นหา');
+                return;
+            }
+            currentPage = 1;
+            fetchData(currentDate, currentPage);
+        };
+
+        prevButton.onclick = () => {
+            if (currentPage > 1) {
+                fetchData(currentDate, currentPage - 1);
+            }
+        };
+
+        nextButton.onclick = () => {
+            fetchData(currentDate, currentPage + 1);
+        };
+
+        // Modal Listeners
+        cancelEditButton.onclick = () => {
+            closeModal(editModal);
+        };
+
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            saveEditButton.disabled = true;
+            saveEditButton.textContent = "กำลังบันทึก...";
+
+            const id = document.getElementById('edit-id').value;
+            const updatedData = {
+                ID: id,
+                ชื่อ: document.getElementById('edit-ชื่อ').value,
+                นามสกุล: document.getElementById('edit-นามสกุล').value,
+                วันเกิด: document.getElementById('edit-วันเกิด').value,
+                อายุ: document.getElementById('edit-อายุ').value,
+                ชื่อผู้ติดต่อกรณีฉุกเฉิน: document.getElementById('edit-ชื่อผู้ติดต่อกรณีฉุกเฉิน').value,
+                หมายเลขติดต่อกรณีฉุกเฉิน: document.getElementById('edit-หมายเลขติดต่อกรณีฉุกเฉิน').value,
+            };
+
+            try {
+                const response = await fetch(appScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'updateData', data: updatedData }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                
+                if (result.status !== 'success') {
+                    throw new Error(result.message);
+                }
+                
+                showMessage('บันทึกข้อมูลสำเร็จ', 'success');
+                closeModal(editModal);
+                fetchData(currentDate, currentPage); // Refresh data
+
+            } catch (error) {
+                console.error('Error updating data:', error);
+                showMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            } finally {
+                saveEditButton.disabled = false;
+                saveEditButton.textContent = "บันทึกการเปลี่ยนแปลง";
+            }
+        };
+        
+        // --- Helper Functions ---
+        
+        function showLoading(isLoading) {
+            loadingEl.classList.toggle('hidden', !isLoading);
+        }
+        
+        function showMessage(msg, type = 'error') {
+            messageEl.textContent = msg;
+            messageEl.className = `text-center p-8 text-lg ${type === 'error' ? 'text-red-500' : 'text-green-500'}`;
+            messageEl.classList.remove('hidden');
+        }
+        
+        function hideMessage() {
+            messageEl.classList.add('hidden');
+        }
+        
+        function openModal(modal) {
+            modal.classList.remove('modal-inactive');
+            modal.classList.add('modal-active');
+        }
+        
+        function closeModal(modal) {
+            modal.classList.add('modal-inactive');
+            modal.classList.remove('modal-active');
+        }
+        
+        // --- Data Fetching and Rendering ---
+
+        async function fetchData(date, page) {
+            showLoading(true);
+            hideMessage();
+            resultsBody.innerHTML = '';
+            resultsHeader.innerHTML = '';
+            paginationControls.classList.add('hidden');
+            allFetchedData = []; // Clear cache
+
+            try {
+                // [สำคัญ] เปลี่ยน action เป็น getAdminDataByDate
+                const response = await fetch(`${appScriptUrl}?action=getAdminDataByDate&date=${date}&page=${page}`);
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const responseData = await response.json();
+                
+                if (typeof responseData.pagination === 'undefined') {
+                    if (Array.isArray(responseData)) {
+                        throw new Error('กรุณา Deploy Code.gs (Google Apps Script) ของคุณใหม่ (เลือก "New version") โค้ดฝั่งเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันเก่า');
+                    }
+                    if (responseData.status !== 'error') {
+                         throw new Error('Response JSON from server is missing "pagination" property. Please re-deploy Code.gs');
+                    }
+                }
+                if (responseData.status === 'error') throw new Error(responseData.message);
+
+                const data = responseData.data;
+                const pagination = responseData.pagination;
+                
+                currentPage = pagination.currentPage;
+                allFetchedData = data; // Cache data for edit/delete
+
+                if (data.length === 0 && pagination.totalItems === 0) {
+                    showMessage('ไม่พบข้อมูลในวันที่เลือก');
+                    return;
+                }
+
+                displayData(data);
+                updatePaginationControls(pagination);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayData(data) {
+            resultsBody.innerHTML = '';
+            resultsHeader.innerHTML = '';
+            
+            if (data.length === 0) return;
+
+            const headers = Object.keys(data[0]);
+            
+            // Create Headers
+            headers.forEach(header => {
+                if (header === 'ID') return; // Don't show ID column
+                const th = document.createElement('th');
+                th.className = 'px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = header;
+                resultsHeader.appendChild(th);
+            });
+            const thActions = document.createElement('th');
+            thActions.className = 'px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider';
+            thActions.textContent = 'Actions';
+            resultsHeader.appendChild(thActions);
+
+
+            // Create Rows
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-200 hover:bg-gray-50';
+                
+                headers.forEach(header => {
+                    if (header === 'ID') return; // Don't show ID
+                    
+                    const td = document.createElement('td');
+                    td.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-700';
+                    let content = row[header];
+                    
+                    if (header.toLowerCase() === 'ลายเซ็น' && content.startsWith('data:image/')) {
+                        const img = document.createElement('img');
+                        img.src = content;
+                        img.alt = 'Signature';
+                        img.className = 'h-8 w-auto';
+                        td.appendChild(img);
+                    } else {
+                        td.textContent = content;
+                    }
+                    tr.appendChild(td);
+                });
+                
+                // Add Actions Cell
+                const tdActions = document.createElement('td');
+                tdActions.className = 'px-4 py-3 whitespace-nowrap text-sm text-center';
+                
+                // Edit Button
+                const editButton = document.createElement('button');
+                editButton.innerHTML = 'แก้ไข';
+                editButton.className = 'text-blue-600 hover:text-blue-800 mr-2';
+                editButton.onclick = () => openEditModal(row.ID); // Use ID
+                tdActions.appendChild(editButton);
+                
+                // Delete Button
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = 'ลบ';
+                deleteButton.className = 'text-red-600 hover:text-red-800 mr-2';
+                deleteButton.onclick = () => deleteData(row.ID); // Use ID
+                tdActions.appendChild(deleteButton);
+                
+                // Print TH Button
+                const printThButton = document.createElement('button');
+                printThButton.innerHTML = 'พิมพ์ TH';
+                printThButton.className = 'text-green-600 hover:text-green-800 mr-2';
+                printThButton.onclick = () => generatePdf(row.ID, 'th'); // Use ID
+                tdActions.appendChild(printThButton);
+
+                // Print EN Button
+                const printEnButton = document.createElement('button');
+                printEnButton.innerHTML = 'พิมพ์ EN';
+                printEnButton.className = 'text-green-600 hover:text-green-800';
+                printEnButton.onclick = () => generatePdf(row.ID, 'en'); // Use ID
+                tdActions.appendChild(printEnButton);
+                
+                tr.appendChild(tdActions);
+                resultsBody.appendChild(tr);
+            });
+        }
+
+        function updatePaginationControls(pagination) {
+            if (pagination.totalPages <= 1) {
+                paginationControls.classList.add('hidden');
+                return;
+            }
+            paginationControls.classList.remove('hidden');
+            pageInfo.textContent = `หน้า ${pagination.currentPage} / ${pagination.totalPages}`;
+            prevButton.disabled = (pagination.currentPage === 1);
+            nextButton.disabled = (pagination.currentPage === pagination.totalPages);
+        }
+        
+        // --- Admin Actions ---
+        
+        function openEditModal(id) {
+            const rowData = allFetchedData.find(row => row.ID === id);
+            if (!rowData) {
+                showMessage('Error: Could not find data to edit.');
+                return;
+            }
+            
+            document.getElementById('edit-id').value = rowData.ID;
+            document.getElementById('edit-ชื่อ').value = rowData.ชื่อ;
+            document.getElementById('edit-นามสกุล').value = rowData.นามสกุล;
+            document.getElementById('edit-วันเกิด').value = rowData.วันเกิด;
+            document.getElementById('edit-อายุ').value = rowData.อายุ;
+            document.getElementById('edit-ชื่อผู้ติดต่อกรณีฉุกเฉิน').value = rowData.ชื่อผู้ติดต่อกรณีฉุกเฉิน;
+            document.getElementById('edit-หมายเลขติดต่อกรณีฉุกเฉิน').value = rowData.หมายเลขติดต่อกรณีฉุกเฉิน;
+            
+            openModal(editModal);
+        }
+
+        async function deleteData(id) {
+            if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูล ID: ${id}? การกระทำนี้ไม่สามารถย้อนกลับได้`)) {
+                return;
+            }
+            
+            showLoading(true);
+            try {
+                const response = await fetch(appScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'deleteData', id: id }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                
+                if (result.status !== 'success') {
+                    throw new Error(result.message);
+                }
+                
+                showMessage('ลบข้อมูลสำเร็จ', 'success');
+                fetchData(currentDate, currentPage); // Refresh data
+                
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+                showLoading(false);
+            }
+        }
+        
+        async function generatePdf(id, lang) {
+            openModal(pdfModal);
+            try {
+                const response = await fetch(`${appScriptUrl}?action=generatePdf&id=${id}&lang=${lang}`);
+                const result = await response.json();
+                
+                if (result.status !== 'success') {
+                    throw new Error(result.message);
+                }
+
+                // Convert Base64 to Blob and open in new tab
+                const byteCharacters = atob(result.pdfBase64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], {type: 'application/pdf'});
+                const blobUrl = URL.createObjectURL(blob);
+                
+                window.open(blobUrl, '_blank');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showMessage(`เกิดข้อผิดพลาดในการสร้าง PDF: ${error.message}`);
+            } finally {
+                closeModal(pdfModal);
+            }
+        }
+
+    </script>
+</body>
+</html>
