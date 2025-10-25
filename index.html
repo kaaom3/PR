@@ -44,7 +44,7 @@
             padding: 4px 8px;
         }
     </style>
-    <!-- โหลดฟอนต์ Inter จาก Google Fonts -->
+    <!-- โหลดฟอนต์ Inter และ Sarabun จาก Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +55,7 @@
 
         <!-- ===== Page 1: Language Selection ===== -->
         <div id="language-page" class="p-8 md:p-12 text-center">
-            <!-- Logo Placeholder -->
+            <!-- Logo (อัปเดตตาม URL ที่คุณให้มา) -->
             <img src="https://img2.pic.in.th/pic/logo-resize.webp" alt="Logo" class="mx-auto mb-8 w-48 md:w-64">
             
             <h2 id="lang-title" class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">Please select a language.</h2>
@@ -80,7 +80,7 @@
             
             <!-- Agreement Text Box -->
             <div id="agreement-text" class="h-64 md:h-80 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-gray-50 text-gray-700 text-sm mb-6">
-                <!-- Content will be inserted by JavaScript -->
+                <!-- Content will be inserted by JavaScript from fetched data -->
             </div>
             
             <!-- Agreement Checkbox -->
@@ -175,6 +175,7 @@
     <!-- ===== Loading Overlay ===== -->
     <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="w-16 h-16 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+        <span id="loading-text" class="text-white ml-4 text-lg font-semibold">Loading...</span>
     </div>
 
     <!-- ===== JavaScript ===== -->
@@ -183,20 +184,20 @@
         let selectedLang = 'en';
         let signaturePad;
         const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
+        
+        // ตัวแปรสำหรับเก็บข้อตกลงที่ดึงมา
+        let agreementData = {
+            th: '<p>กำลังโหลดข้อตกลงภาษาไทย...</p>',
+            en: '<p>Loading English agreement...</p>'
+        };
 
         // --- Translations Object ---
+        // (นำ agreementText ออกไป เพราะจะดึงมาจาก Google Sheet)
         const translations = {
             en: {
                 langTitle: "Please select a language.",
                 agreementTitle: "FlowRider® Voluntary Acknowledgement of Risks",
-                agreementText: `
-                    <p class="font-bold mb-2">RIDING ON THE FLOWRIDER® IS AN EXTREME SPORT AND HIGH RISK RECREATIONAL ACTIVITY. SHEET WAVE SURFING ON OR IN PROXIMITY TO THE FLOWRIDER® MAY RESULT IN PHYSICAL OR MENTAL INJURY, ILLNESS OR DISEASE, OR DEATH.</p>
-                    <p class="mb-2">This document affects your legal rights. By writing your signature below, you acknowledge that you have read and understood the disclosures of risks, voluntarily accept those risks, and agree to be bound by all terms of this Release of Liability and Indemnity Agreement.</p>
-                    <p class="mb-2">My signature acknowledges that I or the minor for whom I am a legal guardian (collectively referred to as “I”, “me”, or “my”) have voluntarily chosen to participate in the sheet wave surfing attraction known as the FlowRider® or use a Flowboard™ (collectively referred to as the “Activities”) and to use the facilities at Vana Nava Water Jungle including but not limited to the FlowRider® (collectively referred to as the “Facilities”).</p>
-                    <p>...</p>
-                    <p class="font-bold mt-4">VOLUNTARY ACCEPTANCE AND ASSUMPTION OF RISK AND RESPONSIBILITY. I EXPRESSLY AND VOLUNTARILY AGREE, COVENANT AND PROMISE TO ACCEPT AND ASSUME ALL RESPONSIBILITIES, AND RISK FOR INJURY, DEATH, ILLNESS OR DISEASE, OR DAMAGE to me or to my property, arising from my participation in the Activities.</p>
-                    <p class="italic mt-2">(This is sample text based on the image. Please replace with your full agreement text.)</p>
-                `,
+                // agreementText: "...", // (ถูกลบออก)
                 agreementLabel: "I have read and agree to the terms and conditions.",
                 backButton: "Back",
                 nextButton: "Next",
@@ -217,19 +218,13 @@
                 errorMessage: "An error occurred. Please try again.",
                 errorButton: "Try Again",
                 validationSignature: "Signature is required.",
-                validationGeneric: "Please fill out all required fields."
+                validationGeneric: "Please fill out all required fields.",
+                loadingAgreements: "Loading Agreements..."
             },
             th: {
                 langTitle: "กรุณาเลือกภาษา",
                 agreementTitle: "ข้อตกลงว่าด้วยการปลดเปลื้องความรับผิด",
-                agreementText: `
-                    <p class="font-bold mb-2">โฟลว์ไรเดอร์เป็นเครื่องเล่นกีฬาทางน้ำ โต้คลื่น และมีความเสี่ยงสูง ซึ่งอาจส่งผลให้เกิดการบาดเจ็บทางร่างกายหรือจิตใจ หรืออาจถึงแก่ชีวิตได้</p>
-                    <p class="mb-2">เอกสารนี้มีผลต่อสิทธิ์ทางกฎหมายของท่าน การลงลายมือชื่อด้านล่างแสดงว่าท่านรับทราบว่าได้อ่านและทำความเข้าใจการเปิดเผยข้อมูลความเสี่ยง ยอมรับความเสี่ยงเหล่านั้นโดยสมัครใจ และตกลงที่จะผูกพันตามข้อกำหนดทั้งหมดของข้อตกลงการปลดเปลื้องความรับผิดและการชดใช้ค่าเสียหายนี้</p>
-                    <p class="mb-2">ลายมือชื่อของข้าพเจ้าเป็นการรับทราบว่าข้าพเจ้าหรือผู้เยาว์ที่ข้าพเจ้าเป็นผู้ปกครองโดยชอบด้วยกฎหมาย (ต่อไปนี้เรียกรวมกันว่า "ข้าพเจ้า") ได้เลือกเข้าร่วมกิจกรรมโต้คลื่นบนแผ่นกระดานโต้คลื่นที่เรียกว่า โฟลว์ไรเดอร์ หรือใช้ โฟลว์บอร์ด (ต่อไปนี้เรียกรวมกันว่า "กิจกรรม") และเพื่อใช้สิ่งอำนวยความสะดวกที่ วานา นาวา วอเตอร์ จังเกิ้ล ซึ่งรวมถึงแต่ไม่จำกัดเพียง โฟลว์ไรเดอร์ (ต่อไปนี้เรียกรวมกันว่า "สิ่งอำนวยความสะดวก")</p>
-                    <p>...</p>
-                    <p class="font-bold mt-4">การยอมรับความเสี่ยงและความรับผิดชอบโดยสมัครใจ ข้าพเจ้าตกลง ยอมรับ และสัญญาโดยชัดแจ้งและโดยสมัครใจที่จะยอมรับและรับผิดชอบทั้งหมดต่อความรับผิดชอบและความเสี่ยงต่อการบาดเจ็บ การเสียชีวิต การเจ็บป่วย หรือโรค หรือความเสียหายต่อข้าพเจ้าหรือต่อทรัพย์สินของข้าพเจ้า อันเกิดจากการเข้าร่วมกิจกรรมของข้าพเจ้า</p>
-                    <p class="italic mt-2">(นี่คือเนื้อหาตัวอย่างจากภาพ กรุณาแทนที่ด้วยข้อตกลงฉบับเต็ม)</p>
-                `,
+                // agreementText: "...", // (ถูกลบออก)
                 agreementLabel: "ข้าพเจ้าได้อ่านและยอมรับข้อตกลงและเงื่อนไข",
                 backButton: "ย้อนกลับ",
                 nextButton: "ถัดไป",
@@ -250,7 +245,8 @@
                 errorMessage: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
                 errorButton: "ลองอีกครั้ง",
                 validationSignature: "กรุณาลงลายเซ็น",
-                validationGeneric: "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน"
+                validationGeneric: "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน",
+                loadingAgreements: "กำลังโหลดข้อตกลง..."
             }
         };
 
@@ -264,8 +260,38 @@
             document.getElementById(pageId).classList.remove('hidden');
         }
 
-        function showLoading(show) {
+        function showLoading(show, message = '') {
+            document.getElementById('loading-text').textContent = message;
             document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        }
+
+        // --- Data Fetching Function ---
+        async function fetchAgreements() {
+            showLoading(true, translations[selectedLang].loadingAgreements);
+            try {
+                const response = await fetch(appScriptUrl); // ใช้ GET request (default)
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                
+                // ตรวจสอบว่ามีข้อมูล th, en หรือไม่
+                if (data.th && data.en) {
+                    // แปลง \n (newline) ที่อาจมาจาก Google Sheet ให้เป็น <br>
+                    agreementData.th = data.th.replace(/\n/g, '<br>');
+                    agreementData.en = data.en.replace(/\n/g, '<br>');
+                } else {
+                    throw new Error('Agreement data format is incorrect.');
+                }
+                
+            } catch (error) {
+                console.error('Error fetching agreements:', error);
+                // หากโหลดไม่สำเร็จ ให้ใช้ข้อความแจ้งข้อผิดพลาด
+                agreementData.th = `<p class="text-red-500">ไม่สามารถโหลดข้อตกลงได้ กรุณาลองใหม่อีกครั้ง</p>`;
+                agreementData.en = `<p class="text-red-500">Could not load agreements. Please try again.</p>`;
+            } finally {
+                showLoading(false);
+            }
         }
 
         // --- Language Functions ---
@@ -285,7 +311,8 @@
 
             // Agreement Page
             document.getElementById('agreement-title').textContent = t.agreementTitle;
-            document.getElementById('agreement-text').innerHTML = t.agreementText;
+            // *** อัปเดต: ดึงข้อมูลจาก agreementData ที่โหลดมา ***
+            document.getElementById('agreement-text').innerHTML = agreementData[lang]; 
             document.getElementById('agreement-label').textContent = t.agreementLabel;
             document.getElementById('agreement-back').textContent = t.backButton;
             document.getElementById('agreement-next').textContent = t.nextButton;
@@ -319,7 +346,9 @@
         }
 
         function goToAgreement(lang) {
-            setLanguage(lang);
+            // ตั้งค่าภาษาก่อน (ซึ่งจะอัปเดต .innerHTML ของ agreement-text)
+            setLanguage(lang); 
+            // จากนั้นค่อยแสดงหน้า
             showPage('agreement-page');
         }
 
@@ -356,12 +385,6 @@
         }
         
         function getFormattedDateTime(date) {
-            const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            // ใช้ th-TH locale แต่ปรับ format ให้เป็นสากล (yyyy-mm-dd) เพื่อให้ Google Sheet จัดการง่าย
-            // หรือจะใช้ 'th-TH' locale แบบเต็มก็ได้
-            // const formattedDate = date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            
-            // ใช้ format ที่ Google Sheet น่าจะเข้าใจง่าย
             const yyyy = date.getFullYear();
             const mm = String(date.getMonth() + 1).padStart(2, '0');
             const dd = String(date.getDate()).padStart(2, '0');
@@ -389,7 +412,7 @@
                 return;
             }
 
-            showLoading(true);
+            showLoading(true, translations[selectedLang].submitButton + '...');
 
             // Get form data
             const formData = new FormData(form);
@@ -398,48 +421,49 @@
             const { date, time } = getFormattedDateTime(now);
 
             // --- เตรียมข้อมูลส่ง Google Sheet ---
-            // ชื่อคอลัมน์ต้องตรงกับใน Google Sheet
             const dataToSubmit = new FormData();
             dataToSubmit.append('ID', generateUUID());
             dataToSubmit.append('ชื่อ', formData.get('firstName'));
             dataToSubmit.append('นามสกุล', formData.get('lastName'));
-            dataToSubmit.append('วันเกิด', formData.get('dob')); // ส่งเป็น YYYY-MM-DD
+            dataToSubmit.append('วันเกิด', formData.get('dob')); 
             dataToSubmit.append('อายุ', formData.get('age'));
             dataToSubmit.append('ชื่อผู้ติดต่อกรณีฉุกเฉิน', formData.get('emergencyName'));
             dataToSubmit.append('หมายเลขติดต่อกรณีฉุกเฉิน', formData.get('emergencyPhone'));
             dataToSubmit.append('เวลา', time);
-            dataToSubmit.append('ลายเซ็น', signatureData); // ส่งเป็น Base64 Data URL
+            dataToSubmit.append('ลายเซ็น', signatureData); 
             dataToSubmit.append('วันที่', date);
 
 
-            // --- ส่งข้อมูลไปยัง Google Apps Script ---
+            // --- ส่งข้อมูลไปยัง Google Apps Script (POST) ---
             try {
+                // เราต้องส่งแบบ 'POST' ไปยัง doPost
                 const response = await fetch(appScriptUrl, {
                     method: 'POST',
                     body: dataToSubmit,
-                    // mode: 'no-cors' // อาจจำเป็นถ้า Apps Script ไม่ได้ตั้งค่า CORS
                 });
                 
-                // Google Apps Script ที่ redirect มักจะคืนค่า response.type = 'opaque'
-                // เราจะถือว่าถ้า fetch ไม่ throw error คือสำเร็จ
-                
-                // const result = await response.json(); // อาจจะไม่ทำงานถ้ามี redirect
-                // console.log('Success:', result);
+                const result = await response.json(); 
 
-                showLoading(false);
-                showPage('success-page');
-                resetForm();
+                if (result.status === 'success') {
+                    showLoading(false);
+                    showPage('success-page');
+                    resetForm();
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
 
             } catch (error) {
                 console.error('Error submitting form:', error);
                 showLoading(false);
+                // แสดงข้อความ error ที่ได้จาก Apps Script (ถ้ามี)
+                document.getElementById('error-message').textContent = `${translations[selectedLang].errorMessage} (${error.message})`;
                 showPage('error-page');
             }
         }
         
         function resetForm() {
             document.getElementById('registration-form').reset();
-            signaturePad.clear();
+            if(signaturePad) signaturePad.clear();
             document.getElementById('age').value = '';
             document.getElementById('agreement-checkbox').checked = false;
             document.getElementById('agreement-next').disabled = true;
@@ -488,7 +512,10 @@
         // เริ่มต้นด้วยภาษาอังกฤษ
         setLanguage('en'); 
         showPage('language-page');
+        // เรียกดึงข้อมูลข้อตกลงทันทีที่เว็บโหลด
+        fetchAgreements(); 
 
     </script>
 </body>
 </html>
+
