@@ -1,451 +1,494 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vana Nava - FlowRider Registration</title>
-    <!-- 1. โหลด Tailwind CSS -->
+    <title>FlowRider® Registration</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 2. โหลด SignaturePad.js สำหรับลายเซ็น -->
+    <!-- Signature Pad CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
     <style>
-        /* CSS เพิ่มเติมเล็กน้อยสำหรับ Signature Pad */
-        .signature-canvas {
-            border: 2px dashed #cbd5e1; /* tailwind's gray-300 */
-            border-radius: 0.5rem; /* tailwind's rounded-lg */
-            cursor: crosshair;
+        /* ใช้ฟอนต์ Inter */
+        body {
+            font-family: 'Inter', sans-serif;
         }
-        /* ซ่อนหน้าต่างๆ ไว้ก่อน */
-        .page {
+        /* ซ่อน scrollbar ของ textarea ข้อตกลง */
+        #agreement-text::-webkit-scrollbar {
             display: none;
         }
-        /* คลาสสำหรับแสดงหน้าปัจจุบัน */
-        .page.active {
+        #agreement-text {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* สไตล์สำหรับ Signature Pad */
+        .signature-pad-container {
+            border: 2px dashed #cbd5e1; /* gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: #f8fafc; /* gray-50 */
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
             display: block;
         }
-        /*  */
-        .logo-container {
-            background-image: url('https://placehold.co/800x300/f0f9ff/0ea5e9?text=Vana+Nava+Water+Jungle');
-            background-size: cover;
-            background-position: center;
-            height: 200px;
-            position: relative;
-        }
-        .logo-overlay {
+        /* ปุ่มล้างลายเซ็น */
+        #clear-signature {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            padding: 1.5rem;
+            top: 8px;
+            right: 8px;
+            font-size: 0.875rem;
+            padding: 4px 8px;
         }
     </style>
+    <!-- โหลดฟอนต์ Inter จาก Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden m-4">
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
 
-        <!-- ===== 1. หน้าเลือกภาษา (Language Selection Page) ===== -->
-        <div id="lang-page" class="page active p-6 md:p-10 text-center">
-            <div class="logo-container -m-6 md:-m-10 mb-6 rounded-t-lg">
-                <div class="logo-overlay">
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">Please select a language.</h1>
-                </div>
-            </div>
+        <!-- ===== Page 1: Language Selection ===== -->
+        <div id="language-page" class="p-8 md:p-12 text-center">
+            <!-- Logo Placeholder -->
+            <img src="https://placehold.co/300x150/00AEEF/FFFFFF?text=Vana+Nava+Logo" alt="Logo" class="mx-auto mb-8 w-48 md:w-64">
             
-            <p class="text-gray-600 mb-8 mt-8">กรุณาเลือกภาษา / Please select a language</p>
-            <div class="flex justify-center gap-4">
-                <!-- ปุ่มเลือกภาษาไทย -->
-                <button onclick="selectLang('th')" class="flex flex-col items-center justify-center w-24 h-24 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all transform hover:scale-105">
-                    <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                    <span class="font-semibold">TH</span>
+            <h2 id="lang-title" class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">Please select a language.</h2>
+            
+            <div class="flex justify-center gap-6">
+                <!-- TH Button -->
+                <button onclick="goToAgreement('th')" class="flex flex-col items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-blue-500 text-white rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                    <span class="text-xl md:text-2xl font-bold">TH</span>
                 </button>
-                <!-- ปุ่มเลือกภาษาอังกฤษ -->
-                <button onclick="selectLang('en')" class="flex flex-col items-center justify-center w-24 h-24 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all transform hover:scale-105">
-                    <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                    <span class="font-semibold">EN</span>
+                <!-- EN Button -->
+                <button onclick="goToAgreement('en')" class="flex flex-col items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-blue-500 text-white rounded-full shadow-lg transition-transform transform hover:scale-105 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                    <span class="text-xl md:text-2xl font-bold">EN</span>
                 </button>
             </div>
         </div>
 
-        <!-- ===== 2. หน้าข้อตกลง (Agreement Page) ===== -->
-        <div id="agreement-page" class="page p-6 md:p-10">
-            <h2 class="text-2xl font-bold mb-4" data-lang-key="agreement_title">ข้อตกลงและเงื่อนไข</h2>
+        <!-- ===== Page 2: Agreement ===== -->
+        <div id="agreement-page" class="p-8 md:p-12 hidden">
+            <h2 id="agreement-title" class="text-2xl font-bold text-gray-800 mb-4 text-center"></h2>
             
-            <!-- กล่องข้อความข้อตกลง -->
-            <div class="h-64 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-gray-50 text-sm text-gray-700">
-                <!-- ข้อความภาษาไทย -->
-                <div data-lang-key="agreement_text_th" class="lang-text">
-                    <h3 class="font-bold text-lg mb-2">ข้อตกลงว่าด้วยการปลอดเปลื้องความรับผิด</h3>
-                    <p>โฟลว์ไรเดอร์เป็นเครื่องเล่นกีฬาทางน้ำ โต้คลื่น และมีความเสี่ยงสูง คลื่นอาจซัดลงมาที่เครื่องโฟลว์ไรเดอร์ หรืออาจร่างกายบาดเจ็บทางร่างกาย และจิตใจ หรือเจ็บป่วย โรคภัย หรืออาจทำให้ถึงแก่ชีวิตได้ เอกสารนี้เกี่ยวข้องกับสิทธิตามกฎหมายของท่าน การลงลายมือชื่อถือเป็นเอกสารยืนยันการเป็นเครื่องเล่นและท่านได้อ่านและทำความเข้าใจถึงปัจจัยต่างๆที่อาจเกิดขึ้นจากการใช้เครื่องเล่นดังกล่าวแล้ว และยินยอมรับในความเสี่ยงเหล่านั้นโดยสมัครใจ และตกลงที่จะผูกพันตนตามข้อกำหนดว่าด้วยการปลอดเปลื้องความรับผิดและการชดใช้ค่าเสียหายฉบับนี้...</p>
-                    <p class="mt-2">[...เนื้อหาข้อตกลงส่วนที่เหลือ...]</p>
-                </div>
-                <!-- ข้อความภาษาอังกฤษ -->
-                <div data-lang-key="agreement_text_en" class="lang-text" style="display: none;">
-                    <h3 class="font-bold text-lg mb-2">FlowRider® Voluntary Acknowledgement of Risks</h3>
-                    <p>RIDING ON THE FLOWRIDER® IS AN EXTREME SPORT AND HIGH RISK RECREATIONAL ACTIVITY. SHEET WAVE SURFING ON OR IN PROXIMITY TO THE FLOWRIDER® MAY RESULT IN PHYSICAL OR MENTAL INJURY, ILLNESS OR DISEASE, OR DEATH. This document affects your legal rights. By writing your signature below, you acknowledge that you have read and understood the disclosures of risks, voluntarily accept those risks, and agree to be bound by all terms of this Release of Liability and Indemnity Agreement...</p>
-                    <p class="mt-2">[...Rest of the agreement text...]</p>
-                </div>
+            <!-- Agreement Text Box -->
+            <div id="agreement-text" class="h-64 md:h-80 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-gray-50 text-gray-700 text-sm mb-6">
+                <!-- Content will be inserted by JavaScript -->
             </div>
-
-            <!-- Checkbox ยอมรับ -->
-            <div class="mt-6">
-                <label class="flex items-center">
-                    <input type="checkbox" id="agree-checkbox" class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                    <span class="ml-3 text-gray-700" data-lang-key="agreement_check">ข้าพเจ้ายอมรับข้อตกลงและเงื่อนไข</span>
-                </label>
+            
+            <!-- Agreement Checkbox -->
+            <div class="flex items-center mb-6">
+                <input id="agreement-checkbox" type="checkbox" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label id="agreement-label" for="agreement-checkbox" class="ml-3 block text-sm md:text-base font-medium text-gray-700"></label>
             </div>
-
-            <!-- ปุ่มดำเนินการต่อ -->
-            <div class="flex justify-end mt-6">
-                <button id="continue-btn" onclick="showPage('form-page')" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all opacity-50 cursor-not-allowed" disabled>
-                    <span data-lang-key="continue_button">ดำเนินการต่อ</span> &rarr;
-                </button>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between">
+                <button id="agreement-back" onclick="goToLanguage()" class="py-2 px-6 bg-gray-200 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition duration-300"></button>
+                <button id="agreement-next" onclick="goToForm()" class="py-2 px-6 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled></button>
             </div>
         </div>
 
-        <!-- ===== 3. หน้าฟอร์มลงทะเบียน (Registration Form Page) ===== -->
-        <div id="form-page" class="page p-6 md:p-10">
-            <h2 class="text-2xl font-bold mb-6" data-lang-key="form_title">แบบฟอร์มลงทะเบียน</h2>
+        <!-- ===== Page 3: Registration Form ===== -->
+        <div id="form-page" class="p-8 md:p-12 hidden">
+            <h2 id="form-title" class="text-2xl font-bold text-gray-800 mb-6 text-center"></h2>
             
-            <form id="registration-form" class="space-y-4">
-                <!-- ชื่อ - นามสกุล -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="registration-form" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <!-- First Name -->
                     <div>
-                        <label for="first-name" class="block text-sm font-medium text-gray-700" data-lang-key="form_fname">ชื่อ</label>
-                        <input type="text" id="first-name" name="firstName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <label id="label-firstName" for="firstName" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="text" id="firstName" name="firstName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
+                    <!-- Last Name -->
                     <div>
-                        <label for="last-name" class="block text-sm font-medium text-gray-700" data-lang-key="form_lname">นามสกุล</label>
-                        <input type="text" id="last-name" name="lastName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <label id="label-lastName" for="lastName" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="text" id="lastName" name="lastName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <!-- Date of Birth -->
+                    <div>
+                        <label id="label-dob" for="dob" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="date" id="dob" name="dob" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <!-- Age -->
+                    <div>
+                        <label id="label-age" for="age" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="text" id="age" name="age" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none">
+                    </div>
+                    <!-- Emergency Contact Name -->
+                    <div class="md:col-span-2">
+                        <label id="label-emergencyName" for="emergencyName" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="text" id="emergencyName" name="emergencyName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <!-- Emergency Contact Phone -->
+                    <div class="md:col-span-2">
+                        <label id="label-emergencyPhone" for="emergencyPhone" class="block text-sm font-medium text-gray-700"></label>
+                        <input type="tel" id="emergencyPhone" name="emergencyPhone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <!-- Signature Pad -->
+                    <div class="md:col-span-2">
+                        <label id="label-signature" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                        <div class="signature-pad-container">
+                            <canvas id="signature-canvas"></canvas>
+                            <button type="button" id="clear-signature" class="bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"></button>
+                        </div>
+                        <input type="hidden" id="signature-data" name="signature">
                     </div>
                 </div>
-
-                <!-- วันเกิด -->
-                <div>
-                    <label for="dob" class="block text-sm font-medium text-gray-700" data-lang-key="form_dob">วันเกิด (ค.ศ.)</A></label>
-                    <input type="date" id="dob" name="dob" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                </div>
-
-                <!-- ข้อมูลติดต่อฉุกเฉิน -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="emergency-name" class="block text-sm font-medium text-gray-700" data-lang-key="form_emergency_name">ชื่อผู้ติดต่อฉุกเฉิน</label>
-                        <input type="text" id="emergency-name" name="emergencyName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="emergency-phone" class="block text-sm font-medium text-gray-700" data-lang-key="form_emergency_phone">เบอร์โทรผู้ติดต่อฉุกเฉิน</label>
-                        <input type="tel" id="emergency-phone" name="emergencyPhone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                    </div>
-                </div>
-
-                <!-- ลายเซ็น -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" data-lang-key="form_signature">ลายเซ็น</label>
-                    <div class="mt-1 relative">
-                        <canvas id="signature-canvas" class="signature-canvas w-full h-40 bg-white"></canvas>
-                        <button type="button" id="clear-signature" class="absolute top-2 right-2 bg-gray-200 text-gray-700 text-xs py-1 px-2 rounded hover:bg-gray-300" data-lang-key="form_clear_sig">ล้าง</button>
-                    </div>
-                    <input type="hidden" id="signature-data" name="signatureData">
-                </div>
-
-                <!-- ปุ่ม Submit -->
-                <div class="flex justify-end pt-4">
-                    <button type="submit" id="submit-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-green-700 transition-all flex items-center">
-                        <!-- Loading Spinner (ซ่อนไว้ก่อน) -->
-                        <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="display: none;">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span data-lang-key="form_submit">บันทึกข้อมูล</span>
-                    </button>
+                
+                <!-- Form Buttons -->
+                <div class="flex justify-between mt-8">
+                    <button id="form-back" type="button" onclick="showPage('agreement-page')" class="py-2 px-6 bg-gray-200 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition duration-300"></button>
+                    <button id="form-submit" type="submit" class="py-2 px-6 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300"></button>
                 </div>
             </form>
+        </div>
 
-            <!-- ข้อความแจ้งเตือน -->
-            <div id="success-message" class="hidden mt-4 p-4 rounded-md bg-green-100 text-green-700">
-                <span data-lang-key="msg_success">บันทึกข้อมูลสำเร็จ!</span>
+        <!-- ===== Page 4: Success Message ===== -->
+        <div id="success-page" class="p-8 md:p-12 text-center hidden">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <div id="error-message" class="hidden mt-4 p-4 rounded-md bg-red-100 text-red-700">
-                <span data-lang-key="msg_error">เกิดข้อผิดพลาด:</span> <span id="error-text"></span>
+            <h2 id="success-title" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+            <p id="success-message" class="text-gray-600 mb-8"></p>
+            <button id="success-button" onclick="resetApp()" class="py-2 px-6 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300"></button>
+        </div>
+
+        <!-- ===== Page 5: Error Message ===== -->
+        <div id="error-page" class="p-8 md:p-12 text-center hidden">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
+            <h2 id="error-title" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+            <p id="error-message" class="text-gray-600 mb-8"></p>
+            <button id="error-button" onclick="showPage('form-page')" class="py-2 px-6 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300"></button>
         </div>
     </div>
 
+    <!-- ===== Loading Overlay ===== -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="w-16 h-16 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+    </div>
+
+    <!-- ===== JavaScript ===== -->
     <script>
-        // ===== URL ของ Google Apps Script (สำคัญมาก!) =====
-        // ให้คุณนำ URL ที่ได้จากการ Deploy Google Apps Script มาวางที่นี่
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec'; 
-        
-        // ===================================================
+        // --- Globals ---
+        let selectedLang = 'en';
+        let signaturePad;
+        const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
 
-        let currentLang = 'th'; // ภาษาเริ่มต้น
-        let signaturePad; // ตัวแปรสำหรับเก็บ SignaturePad
-
-        // ข้อความสำหรับเปลี่ยนภาษา
+        // --- Translations Object ---
         const translations = {
-            th: {
-                agreement_title: "ข้อตกลงและเงื่อนไข",
-                agreement_check: "ข้าพเจ้ายอมรับข้อตกลงและเงื่อนไข",
-                continue_button: "ดำเนินการต่อ",
-                form_title: "แบบฟอร์มลงทะเบียน",
-                form_fname: "ชื่อ",
-                form_lname: "นามสกุล",
-                form_dob: "วันเกิด (ค.ศ.)",
-                form_emergency_name: "ชื่อผู้ติดต่อฉุกเฉิน",
-                form_emergency_phone: "เบอร์โทรผู้ติดต่อฉุกเฉิน",
-                form_signature: "ลายเซ็น",
-                form_clear_sig: "ล้าง",
-                form_submit: "บันทึกข้อมูล",
-                msg_success: "บันทึกข้อมูลสำเร็จ!",
-                msg_error: "เกิดข้อผิดพลาด:",
-                msg_sig_empty: "กรุณาลงลายเซ็น"
-            },
             en: {
-                agreement_title: "Terms and Conditions",
-                agreement_check: "I accept the terms and conditions",
-                continue_button: "Continue",
-                form_title: "Registration Form",
-                form_fname: "First Name",
-                form_lname: "Last Name",
-                form_dob: "Date of Birth",
-                form_emergency_name: "Emergency Contact Name",
-                form_emergency_phone: "Emergency Contact Telephone",
-                form_signature: "Signature",
-                form_clear_sig: "Clear",
-                form_submit: "Submit",
-                msg_success: "Data saved successfully!",
-                msg_error: "An error occurred:",
-                msg_sig_empty: "Please provide a signature."
+                langTitle: "Please select a language.",
+                agreementTitle: "FlowRider® Voluntary Acknowledgement of Risks",
+                agreementText: `
+                    <p class="font-bold mb-2">RIDING ON THE FLOWRIDER® IS AN EXTREME SPORT AND HIGH RISK RECREATIONAL ACTIVITY. SHEET WAVE SURFING ON OR IN PROXIMITY TO THE FLOWRIDER® MAY RESULT IN PHYSICAL OR MENTAL INJURY, ILLNESS OR DISEASE, OR DEATH.</p>
+                    <p class="mb-2">This document affects your legal rights. By writing your signature below, you acknowledge that you have read and understood the disclosures of risks, voluntarily accept those risks, and agree to be bound by all terms of this Release of Liability and Indemnity Agreement.</p>
+                    <p class="mb-2">My signature acknowledges that I or the minor for whom I am a legal guardian (collectively referred to as “I”, “me”, or “my”) have voluntarily chosen to participate in the sheet wave surfing attraction known as the FlowRider® or use a Flowboard™ (collectively referred to as the “Activities”) and to use the facilities at Vana Nava Water Jungle including but not limited to the FlowRider® (collectively referred to as the “Facilities”).</p>
+                    <p>...</p>
+                    <p class="font-bold mt-4">VOLUNTARY ACCEPTANCE AND ASSUMPTION OF RISK AND RESPONSIBILITY. I EXPRESSLY AND VOLUNTARILY AGREE, COVENANT AND PROMISE TO ACCEPT AND ASSUME ALL RESPONSIBILITIES, AND RISK FOR INJURY, DEATH, ILLNESS OR DISEASE, OR DAMAGE to me or to my property, arising from my participation in the Activities.</p>
+                    <p class="italic mt-2">(This is sample text based on the image. Please replace with your full agreement text.)</p>
+                `,
+                agreementLabel: "I have read and agree to the terms and conditions.",
+                backButton: "Back",
+                nextButton: "Next",
+                formTitle: "Registration Form",
+                labelFirstName: "First Name",
+                labelLastName: "Last Name",
+                labelDob: "Date of Birth",
+                labelAge: "Age",
+                labelEmergencyName: "Emergency Contact Name",
+                labelEmergencyPhone: "Emergency Contact Telephone",
+                labelSignature: "Signature (Please sign below)",
+                clearButton: "Clear",
+                submitButton: "Submit",
+                successTitle: "Registration Successful!",
+                successMessage: "Your information has been submitted.",
+                successButton: "Register Another",
+                errorTitle: "Submission Failed",
+                errorMessage: "An error occurred. Please try again.",
+                errorButton: "Try Again",
+                validationSignature: "Signature is required.",
+                validationGeneric: "Please fill out all required fields."
+            },
+            th: {
+                langTitle: "กรุณาเลือกภาษา",
+                agreementTitle: "ข้อตกลงว่าด้วยการปลดเปลื้องความรับผิด",
+                agreementText: `
+                    <p class="font-bold mb-2">โฟลว์ไรเดอร์เป็นเครื่องเล่นกีฬาทางน้ำ โต้คลื่น และมีความเสี่ยงสูง ซึ่งอาจส่งผลให้เกิดการบาดเจ็บทางร่างกายหรือจิตใจ หรืออาจถึงแก่ชีวิตได้</p>
+                    <p class="mb-2">เอกสารนี้มีผลต่อสิทธิ์ทางกฎหมายของท่าน การลงลายมือชื่อด้านล่างแสดงว่าท่านรับทราบว่าได้อ่านและทำความเข้าใจการเปิดเผยข้อมูลความเสี่ยง ยอมรับความเสี่ยงเหล่านั้นโดยสมัครใจ และตกลงที่จะผูกพันตามข้อกำหนดทั้งหมดของข้อตกลงการปลดเปลื้องความรับผิดและการชดใช้ค่าเสียหายนี้</p>
+                    <p class="mb-2">ลายมือชื่อของข้าพเจ้าเป็นการรับทราบว่าข้าพเจ้าหรือผู้เยาว์ที่ข้าพเจ้าเป็นผู้ปกครองโดยชอบด้วยกฎหมาย (ต่อไปนี้เรียกรวมกันว่า "ข้าพเจ้า") ได้เลือกเข้าร่วมกิจกรรมโต้คลื่นบนแผ่นกระดานโต้คลื่นที่เรียกว่า โฟลว์ไรเดอร์ หรือใช้ โฟลว์บอร์ด (ต่อไปนี้เรียกรวมกันว่า "กิจกรรม") และเพื่อใช้สิ่งอำนวยความสะดวกที่ วานา นาวา วอเตอร์ จังเกิ้ล ซึ่งรวมถึงแต่ไม่จำกัดเพียง โฟลว์ไรเดอร์ (ต่อไปนี้เรียกรวมกันว่า "สิ่งอำนวยความสะดวก")</p>
+                    <p>...</p>
+                    <p class="font-bold mt-4">การยอมรับความเสี่ยงและความรับผิดชอบโดยสมัครใจ ข้าพเจ้าตกลง ยอมรับ และสัญญาโดยชัดแจ้งและโดยสมัครใจที่จะยอมรับและรับผิดชอบทั้งหมดต่อความรับผิดชอบและความเสี่ยงต่อการบาดเจ็บ การเสียชีวิต การเจ็บป่วย หรือโรค หรือความเสียหายต่อข้าพเจ้าหรือต่อทรัพย์สินของข้าพเจ้า อันเกิดจากการเข้าร่วมกิจกรรมของข้าพเจ้า</p>
+                    <p class="italic mt-2">(นี่คือเนื้อหาตัวอย่างจากภาพ กรุณาแทนที่ด้วยข้อตกลงฉบับเต็ม)</p>
+                `,
+                agreementLabel: "ข้าพเจ้าได้อ่านและยอมรับข้อตกลงและเงื่อนไข",
+                backButton: "ย้อนกลับ",
+                nextButton: "ถัดไป",
+                formTitle: "แบบฟอร์มลงทะเบียน",
+                labelFirstName: "ชื่อ",
+                labelLastName: "นามสกุล",
+                labelDob: "วันเกิด",
+                labelAge: "อายุ",
+                labelEmergencyName: "ชื่อผู้ติดต่อกรณีฉุกเฉิน",
+                labelEmergencyPhone: "หมายเลขติดต่อกรณีฉุกเฉิน",
+                labelSignature: "ลายเซ็น (กรุณาลงนามด้านล่าง)",
+                clearButton: "ล้าง",
+                submitButton: "ส่งข้อมูล",
+                successTitle: "ลงทะเบียนสำเร็จ!",
+                successMessage: "ข้อมูลของคุณถูกส่งเรียบร้อยแล้ว",
+                successButton: "ลงทะเบียนอีกครั้ง",
+                errorTitle: "ส่งข้อมูลไม่สำเร็จ",
+                errorMessage: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+                errorButton: "ลองอีกครั้ง",
+                validationSignature: "กรุณาลงลายเซ็น",
+                validationGeneric: "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน"
             }
         };
 
-        // DOM Elements
-        const agreeCheckbox = document.getElementById('agree-checkbox');
-        const continueBtn = document.getElementById('continue-btn');
-        const form = document.getElementById('registration-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const successMessage = document.getElementById('success-message');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
-        const canvas = document.getElementById('signature-canvas');
-        const clearSigBtn = document.getElementById('clear-signature');
-
-        // ฟังก์ชันแสดงหน้า
+        // --- Page Navigation ---
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
+            document.getElementById('language-page').classList.add('hidden');
+            document.getElementById('agreement-page').classList.add('hidden');
+            document.getElementById('form-page').classList.add('hidden');
+            document.getElementById('success-page').classList.add('hidden');
+            document.getElementById('error-page').classList.add('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
         }
 
-        // ฟังก์ชันเลือกภาษา
-        function selectLang(lang) {
-            currentLang = lang;
-            
-            // เปลี่ยนข้อความทั้งหมดในหน้า
-            document.querySelectorAll('[data-lang-key]').forEach(el => {
-                const key = el.getAttribute('data-lang-key');
-                if (translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
+        function showLoading(show) {
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        }
 
-            // สลับข้อความข้อตกลง
-            document.querySelectorAll('.lang-text').forEach(el => {
-                el.style.display = 'none';
-            });
-            document.querySelector(`[data-lang-key="agreement_text_${lang}"]`).style.display = 'block';
+        // --- Language Functions ---
+        function setLanguage(lang) {
+            selectedLang = lang;
+            const t = translations[lang];
 
-            // ไปยังหน้าข้อตกลง
+            // Set body font based on language
+            if (lang === 'th') {
+                document.body.style.fontFamily = "'Sarabun', sans-serif";
+            } else {
+                document.body.style.fontFamily = "'Inter', sans-serif";
+            }
+
+            // Language Page
+            document.getElementById('lang-title').textContent = t.langTitle;
+
+            // Agreement Page
+            document.getElementById('agreement-title').textContent = t.agreementTitle;
+            document.getElementById('agreement-text').innerHTML = t.agreementText;
+            document.getElementById('agreement-label').textContent = t.agreementLabel;
+            document.getElementById('agreement-back').textContent = t.backButton;
+            document.getElementById('agreement-next').textContent = t.nextButton;
+
+            // Form Page
+            document.getElementById('form-title').textContent = t.formTitle;
+            document.getElementById('label-firstName').textContent = t.labelFirstName;
+            document.getElementById('label-lastName').textContent = t.labelLastName;
+            document.getElementById('label-dob').textContent = t.labelDob;
+            document.getElementById('label-age').textContent = t.labelAge;
+            document.getElementById('label-emergencyName').textContent = t.labelEmergencyName;
+            document.getElementById('label-emergencyPhone').textContent = t.labelEmergencyPhone;
+            document.getElementById('label-signature').textContent = t.labelSignature;
+            document.getElementById('clear-signature').textContent = t.clearButton;
+            document.getElementById('form-back').textContent = t.backButton;
+            document.getElementById('form-submit').textContent = t.submitButton;
+
+            // Success Page
+            document.getElementById('success-title').textContent = t.successTitle;
+            document.getElementById('success-message').textContent = t.successMessage;
+            document.getElementById('success-button').textContent = t.successButton;
+
+            // Error Page
+            document.getElementById('error-title').textContent = t.errorTitle;
+            document.getElementById('error-message').textContent = t.errorMessage;
+            document.getElementById('error-button').textContent = t.errorButton;
+        }
+
+        function goToLanguage() {
+            showPage('language-page');
+        }
+
+        function goToAgreement(lang) {
+            setLanguage(lang);
             showPage('agreement-page');
         }
 
-        // จัดการ Checkbox
-        agreeCheckbox.addEventListener('change', () => {
-            if (agreeCheckbox.checked) {
-                continueBtn.disabled = false;
-                continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                continueBtn.classList.add('hover:bg-blue-700');
-            } else {
-                continueBtn.disabled = true;
-                continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                continueBtn.classList.remove('hover:bg-blue-700');
+        function goToForm() {
+            showPage('form-page');
+            // Initialize signature pad only when the page is shown
+            if (!signaturePad) {
+                initSignaturePad();
             }
-        });
+            resizeCanvas();
+        }
 
-        // ----- จัดการ Signature Pad -----
-        function initializeSignaturePad() {
-            // ปรับขนาด canvas ให้พอดีกับ container
-            function resizeCanvas() {
+        // --- Form Functions ---
+        function calculateAge() {
+            const dobInput = document.getElementById('dob').value;
+            if (dobInput) {
+                const dob = new Date(dobInput);
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                document.getElementById('age').value = age;
+            }
+        }
+
+        function generateUUID() {
+            // A simple UUID generator
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        
+        function getFormattedDateTime(date) {
+            const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            // ใช้ th-TH locale แต่ปรับ format ให้เป็นสากล (yyyy-mm-dd) เพื่อให้ Google Sheet จัดการง่าย
+            // หรือจะใช้ 'th-TH' locale แบบเต็มก็ได้
+            // const formattedDate = date.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            // ใช้ format ที่ Google Sheet น่าจะเข้าใจง่าย
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const formattedDate = `${dd}/${mm}/${yyyy}`; // Format DD/MM/YYYY
+            
+            const formattedTime = date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            return { date: formattedDate, time: formattedTime };
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const t = translations[selectedLang];
+
+            // Client-side validation
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                alert(t.validationGeneric);
+                return;
+            }
+
+            if (signaturePad.isEmpty()) {
+                alert(t.validationSignature);
+                return;
+            }
+
+            showLoading(true);
+
+            // Get form data
+            const formData = new FormData(form);
+            const signatureData = signaturePad.toDataURL(); // Base64 PNG
+            const now = new Date();
+            const { date, time } = getFormattedDateTime(now);
+
+            // --- เตรียมข้อมูลส่ง Google Sheet ---
+            // ชื่อคอลัมน์ต้องตรงกับใน Google Sheet
+            const dataToSubmit = new FormData();
+            dataToSubmit.append('ID', generateUUID());
+            dataToSubmit.append('ชื่อ', formData.get('firstName'));
+            dataToSubmit.append('นามสกุล', formData.get('lastName'));
+            dataToSubmit.append('วันเกิด', formData.get('dob')); // ส่งเป็น YYYY-MM-DD
+            dataToSubmit.append('อายุ', formData.get('age'));
+            dataToSubmit.append('ชื่อผู้ติดต่อกรณีฉุกเฉิน', formData.get('emergencyName'));
+            dataToSubmit.append('หมายเลขติดต่อกรณีฉุกเฉิน', formData.get('emergencyPhone'));
+            dataToSubmit.append('เวลา', time);
+            dataToSubmit.append('ลายเซ็น', signatureData); // ส่งเป็น Base64 Data URL
+            dataToSubmit.append('วันที่', date);
+
+
+            // --- ส่งข้อมูลไปยัง Google Apps Script ---
+            try {
+                const response = await fetch(appScriptUrl, {
+                    method: 'POST',
+                    body: dataToSubmit,
+                    // mode: 'no-cors' // อาจจำเป็นถ้า Apps Script ไม่ได้ตั้งค่า CORS
+                });
+                
+                // Google Apps Script ที่ redirect มักจะคืนค่า response.type = 'opaque'
+                // เราจะถือว่าถ้า fetch ไม่ throw error คือสำเร็จ
+                
+                // const result = await response.json(); // อาจจะไม่ทำงานถ้ามี redirect
+                // console.log('Success:', result);
+
+                showLoading(false);
+                showPage('success-page');
+                resetForm();
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showLoading(false);
+                showPage('error-page');
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('registration-form').reset();
+            signaturePad.clear();
+            document.getElementById('age').value = '';
+            document.getElementById('agreement-checkbox').checked = false;
+            document.getElementById('agreement-next').disabled = true;
+        }
+        
+        function resetApp() {
+            resetForm();
+            showPage('language-page');
+        }
+
+        // --- Signature Pad Functions ---
+        function initSignaturePad() {
+            const canvas = document.getElementById('signature-canvas');
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(248, 250, 252)', // bg-gray-50
+                penColor: 'rgb(0, 0, 0)'
+            });
+            document.getElementById('clear-signature').addEventListener('click', () => {
+                signaturePad.clear();
+            });
+        }
+
+        function resizeCanvas() {
+            if (signaturePad) {
+                const canvas = document.getElementById('signature-canvas');
                 const ratio =  Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear(); // เคลียร์ canvas หลัง resize
             }
-            
-            // รอให้หน้า form-page แสดงผลก่อน (เนื่องจาก canvas ถูกซ่อน)
-            // เราจะใช้ IntersectionObserver เพื่อตรวจจับเมื่อ canvas ปรากฏ
-            const observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    if (!signaturePad) { // สร้างแค่ครั้งเดียว
-                        resizeCanvas();
-                        signaturePad = new SignaturePad(canvas, {
-                            backgroundColor: 'rgb(255, 255, 255)'
-                        });
-                        window.addEventListener('resize', resizeCanvas); // ปรับขนาดเมื่อหน้าจอเปลี่ยน
-                    }
-                    signaturePad.clear();
-                }
-            }, { threshold: 0.1 });
-
-            observer.observe(canvas);
         }
+
+        // --- Event Listeners ---
+        window.addEventListener('resize', resizeCanvas);
         
-        // ปุ่มล้างลายเซ็น
-        clearSigBtn.addEventListener('click', () => {
-            if (signaturePad) {
-                signaturePad.clear();
-            }
+        document.getElementById('agreement-checkbox').addEventListener('change', (e) => {
+            document.getElementById('agreement-next').disabled = !e.target.checked;
         });
 
-        // เรียกใช้ตอนเริ่มต้น
-        initializeSignaturePad();
-        
-        // ----- จัดการการ Submit Form -----
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault(); // ป้องกันการโหลดหน้าใหม่
+        document.getElementById('dob').addEventListener('change', calculateAge);
 
-            // ตรวจสอบว่า URL ถูกตั้งค่าหรือยัง
-            if (GOOGLE_APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-                showError('Please set the GOOGLE_APPS_SCRIPT_URL in the script.');
-                return;
-            }
+        document.getElementById('registration-form').addEventListener('submit', handleFormSubmit);
 
-            // ตรวจสอบลายเซ็น
-            if (signaturePad.isEmpty()) {
-                showError(translations[currentLang].msg_sig_empty);
-                return;
-            }
-
-            // แสดง Loading
-            setLoading(true);
-            hideMessages();
-
-            // รวบรวมข้อมูล
-            const formData = new FormData(form);
-            const formValues = Object.fromEntries(formData.entries());
-            
-            // ---- สร้างข้อมูลใหม่ตามที่ผู้ใช้ร้องขอ ----
-            const submissionDate = new Date();
-            const calculatedAge = calculateAge(formValues.dob);
-            
-            // ตั้งค่าตัวเลือกการจัดรูปแบบวันที่และเวลา (โซนเวลาไทย)
-            const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Bangkok' };
-            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' };
-
-            const data = {
-                "ID": crypto.randomUUID(), // สร้าง ID อัตโนมัติ
-                "ชื่อ": formValues.firstName,
-                "นามสกุล": formValues.lastName,
-                "วันเกิด": formValues.dob,
-                "อายุ": calculatedAge, // อายุที่คำนวณได้
-                "ชื่อผู้ติดต่อกรณีฉุกเฉิน": formValues.emergencyName,
-                "หมายเลขติดต่อกรณีฉุกเฉิน": formValues.emergencyPhone,
-                "เวลา": submissionDate.toLocaleTimeString('th-TH', timeOptions), // เวลา (เช่น 15:30:01)
-                "ลายเซ็น": signaturePad.toDataURL('image/png'), // ส่งเป็น data URL
-                "วันที่": submissionDate.toLocaleDateString('th-TH', dateOptions) // วันที่ (เช่น 25/10/2568)
-            };
-            // ---- สิ้นสุดการสร้างข้อมูลใหม่ ----
-
-            try {
-                // ส่งข้อมูลไปยัง Google Apps Script
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors', // ต้องเปิด CORS ใน Apps Script
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    // สำเร็จ
-                    showSuccess();
-                    form.reset();
-                    signaturePad.clear();
-                    // กลับไปหน้าเลือกภาษาหลังหน่วงเวลา
-                    setTimeout(() => {
-                        showPage('lang-page');
-                        hideMessages();
-                        agreeCheckbox.checked = false; // รีเซ็ต checkbox
-                        continueBtn.disabled = true;
-                        continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-                    }, 3000);
-                } else {
-                    // ล้มเหลว (จากฝั่ง Apps Script)
-                    showError(result.message || 'Unknown error');
-                }
-
-            } catch (error) {
-                // ล้มเหลว (Network error)
-                showError(error.message);
-            } finally {
-                // หยุด Loading
-                setLoading(false);
-            }
-        });
-
-        // ----- ฟังก์ชันช่วย (Helpers) -----
-
-        function setLoading(isLoading) {
-            if (isLoading) {
-                submitBtn.disabled = true;
-                loadingSpinner.style.display = 'block';
-                submitBtn.querySelector('span').textContent = 'Loading...';
-            } else {
-                submitBtn.disabled = false;
-                loadingSpinner.style.display = 'none';
-                submitBtn.querySelector('span').textContent = translations[currentLang].form_submit;
-            }
-        }
-
-        function showSuccess() {
-            successMessage.classList.remove('hidden');
-            errorMessage.classList.add('hidden');
-        }
-
-        function showError(message) {
-            errorText.textContent = message;
-            errorMessage.classList.remove('hidden');
-            successMessage.classList.add('hidden');
-        }
-
-        function hideMessages() {
-            successMessage.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-        }
-
-        // ----- ฟังก์ชันใหม่สำหรับคำนวณอายุ -----
-        function calculateAge(dobString) {
-            if (!dobString) return '';
-            try {
-                const dob = new Date(dobString);
-                const diff_ms = Date.now() - dob.getTime();
-                const age_dt = new Date(diff_ms); 
-                return Math.abs(age_dt.getUTCFullYear() - 1970);
-            } catch (e) {
-                console.error('Error calculating age:', e);
-                return ''; // คืนค่าว่างหากคำนวณไม่ได้
-            }
-        }
+        // --- Initial Setup ---
+        // เริ่มต้นด้วยภาษาอังกฤษ
+        setLanguage('en'); 
+        showPage('language-page');
 
     </script>
 </body>
 </html>
-
-
