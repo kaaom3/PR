@@ -51,7 +51,16 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- เพิ่ม class "relative" เพื่อให้ปุ่มเมนูจัดตำแหน่งได้ -->
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden relative">
+
+        <!-- ===== [เพิ่มใหม่] Link to Details Page ===== -->
+        <a href="detail.html" target="_blank" id="admin-link" class="absolute top-4 right-4 text-sm text-gray-500 hover:text-blue-600 z-10 p-2 rounded-full hover:bg-gray-100 transition-colors" title="ดูข้อมูล">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"></path></svg>
+            <span class="sr-only">ดูข้อมูลการลงทะเบียน</span>
+        </a>
+        <!-- ===== [สิ้นสุดส่วนที่เพิ่มใหม่] ===== -->
+
 
         <!-- ===== Page 1: Language Selection ===== -->
         <div id="language-page" class="p-8 md:p-12 text-center">
@@ -196,6 +205,7 @@
         const translations = {
             en: {
                 langTitle: "Please select a language.",
+                adminLinkTitle: "View Data", // [เพิ่มใหม่]
                 agreementTitle: "FlowRider® Voluntary Acknowledgement of Risks",
                 // agreementText: "...", // (ถูกลบออก)
                 agreementLabel: "I have read and agree to the terms and conditions.",
@@ -223,6 +233,7 @@
             },
             th: {
                 langTitle: "กรุณาเลือกภาษา",
+                adminLinkTitle: "ดูข้อมูล", // [เพิ่มใหม่]
                 agreementTitle: "ข้อตกลงว่าด้วยการปลดเปลื้องความรับผิด",
                 // agreementText: "...", // (ถูกลบออก)
                 agreementLabel: "ข้าพเจ้าได้อ่านและยอมรับข้อตกลงและเงื่อนไข",
@@ -308,6 +319,7 @@
 
             // Language Page
             document.getElementById('lang-title').textContent = t.langTitle;
+            document.getElementById('admin-link').title = t.adminLinkTitle; // [เพิ่มใหม่]
 
             // Agreement Page
             document.getElementById('agreement-title').textContent = t.agreementTitle;
