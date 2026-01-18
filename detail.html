@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- [เพิ่มใหม่] Flatpickr (Date Picker) CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        /* Flatpickr custom style for Thai */
         .flatpickr-calendar {
             font-family: 'Inter', sans-serif;
         }
@@ -23,7 +21,6 @@
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
                 รายละเอียดการลงทะเบียน (Registration Details)
             </h1>
-            <!-- [เพิ่มใหม่] Search Controls -->
             <div class="flex items-center gap-2">
                 <input type="text" id="date-picker" placeholder="กรุณาเลือกวันที่..."
                     class="border border-gray-300 rounded-lg p-2 text-center w-48">
@@ -34,7 +31,6 @@
             </div>
         </div>
 
-        <!-- Loading Spinner -->
         <div id="loading" class="text-center p-8 hidden">
             <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">
@@ -46,24 +42,17 @@
             <p class="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
         </div>
 
-        <!-- Message Area -->
         <div id="message" class="text-center p-8 text-lg text-gray-500 hidden"></div>
 
-        <!-- Results Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200">
                 <thead class="bg-gray-50">
-                    <tr id="results-header">
-                        <!-- Headers will be dynamically inserted here -->
-                    </tr>
+                    <tr id="results-header"></tr>
                 </thead>
-                <tbody id="results-body">
-                    <!-- Data rows will be dynamically inserted here -->
-                </tbody>
+                <tbody id="results-body"></tbody>
             </table>
         </div>
 
-        <!-- [เพิ่มใหม่] Pagination Controls -->
         <div id="pagination-controls" class="mt-6 flex justify-between items-center hidden">
             <button id="prev-page"
                 class="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -77,19 +66,16 @@
         </div>
     </div>
 
-    <!-- [เพิ่มใหม่] Flatpickr (Date Picker) JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 
     <script>
-        // !!! [สำคัญ] กรุณาเปลี่ยน URL นี้ให้เป็น URL ที่คุณ Deploy ไว้ !!!
+        // !!! [สำคัญ] เปลี่ยน URL นี้ให้เป็น URL Deploy ของคุณ !!!
         const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
 
-        // [เพิ่มใหม่] Global state for pagination
         let currentPage = 1;
-        let currentDate = ''; // เก็บวันที่ค้นหาล่าสุด
+        let currentDate = '';
 
-        // DOM Elements
         const searchButton = document.getElementById('search-button');
         const datePickerEl = document.getElementById('date-picker');
         const resultsHeader = document.getElementById('results-header');
@@ -97,27 +83,24 @@
         const messageEl = document.getElementById('message');
         const loadingEl = document.getElementById('loading');
         
-        // [เพิ่มใหม่] Pagination Elements
         const paginationControls = document.getElementById('pagination-controls');
         const prevButton = document.getElementById('prev-page');
         const nextButton = document.getElementById('next-page');
         const pageInfo = document.getElementById('page-info');
 
-        // Initialize Flatpickr (Date Picker)
         const fp = flatpickr(datePickerEl, {
-            locale: "th", // ใช้ภาษาไทย
-            dateFormat: "d/m/Y", // Format วันที่ DD/MM/YYYY
+            locale: "th", 
+            dateFormat: "d/m/Y",
         });
 
-        // --- [แก้ไข] Event Listeners ---
         searchButton.onclick = () => {
-            currentDate = datePickerEl.value; // เก็บวันที่ที่ค้นหา
+            currentDate = datePickerEl.value;
             if (!currentDate) {
                 messageEl.textContent = 'กรุณาเลือกวันที่ก่อนค้นหา';
                 messageEl.classList.remove('hidden');
                 return;
             }
-            currentPage = 1; // เริ่มค้นหาใหม่ที่หน้า 1 เสมอ
+            currentPage = 1; 
             fetchData(currentDate, currentPage);
         };
 
@@ -128,41 +111,34 @@
         };
 
         nextButton.onclick = () => {
-            // (การตรวจสอบว่าเกินหน้าสุดท้ายหรือไม่ จะทำใน updatePaginationControls)
             fetchData(currentDate, currentPage + 1);
         };
 
 
-        /**
-         * [แก้ไข] ฟังก์ชันสำหรับดึงข้อมูลและแสดงผล
-         * @param {string} date - วันที่ (DD/MM/YYYY)
-         * @param {number} page - หมายเลขหน้า
-         */
         async function fetchData(date, page) {
             loadingEl.classList.remove('hidden');
             messageEl.classList.add('hidden');
             resultsBody.innerHTML = '';
             resultsHeader.innerHTML = '';
-            paginationControls.classList.add('hidden'); // ซ่อนปุ่มเปลี่ยนหน้าไว้ก่อน
+            paginationControls.classList.add('hidden'); 
 
             try {
-                // [แก้ไข] ส่ง parameter 'page' ไปด้วย
                 const response = await fetch(`${appScriptUrl}?action=getData&date=${date}&page=${page}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const responseData = await response.json(); // [แก้ไข] รับ JSON ก้อนใหม่
+                const responseData = await response.json(); 
 
                 if (responseData.status === 'error') {
                     throw new Error(responseData.message);
                 }
 
-                const data = responseData.data; // [แก้ไข] ข้อมูล 5 แถว
-                const pagination = responseData.pagination; // [แก้ไข] ข้อมูลหน้า
+                const data = responseData.data; 
+                const pagination = responseData.pagination; 
                 
-                currentPage = pagination.currentPage; // [แก้ไข] อัปเดตหน้าปัจจุบัน
+                currentPage = pagination.currentPage; 
 
                 if (data.length === 0) {
                     messageEl.textContent = 'ไม่พบข้อมูลในวันที่เลือก';
@@ -170,9 +146,7 @@
                     return;
                 }
 
-                // แสดงผลข้อมูล
                 displayData(data);
-                // แสดงผลปุ่มเปลี่ยนหน้า
                 updatePaginationControls(pagination);
 
             } catch (error) {
@@ -184,14 +158,10 @@
             }
         }
 
-        /**
-         * [เพิ่มใหม่] ฟังก์ชันสำหรับแสดงผลข้อมูลในตาราง
-         */
         function displayData(data) {
             resultsBody.innerHTML = '';
             resultsHeader.innerHTML = '';
 
-            // สร้าง Headers
             const headers = Object.keys(data[0]);
             headers.forEach(header => {
                 const th = document.createElement('th');
@@ -200,7 +170,6 @@
                 resultsHeader.appendChild(th);
             });
 
-            // สร้าง Rows
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-200 hover:bg-gray-50';
@@ -210,13 +179,17 @@
                     
                     let content = row[header];
                     
-                    // ตรวจสอบถ้าเป็น Base64 Image (ลายเซ็น)
-                    if (header.toLowerCase() === 'ลายเซ็น' && content.startsWith('data:image/')) {
-                        const img = document.createElement('img');
-                        img.src = content;
-                        img.alt = 'Signature';
-                        img.className = 'h-8 w-auto'; // ปรับขนาดตามความเหมาะสม
-                        td.appendChild(img);
+                    // Logic ใหม่: รองรับ URL (http...) และ Base64 (data:image...)
+                    if (header.toLowerCase() === 'ลายเซ็น') {
+                         if (content && (content.startsWith('http') || content.startsWith('data:image/'))) {
+                            const img = document.createElement('img');
+                            img.src = content;
+                            img.alt = 'Signature';
+                            img.className = 'h-8 w-auto'; 
+                            td.appendChild(img);
+                         } else {
+                            td.textContent = 'No Signature';
+                         }
                     } else {
                         td.textContent = content;
                     }
@@ -226,11 +199,7 @@
             });
         }
 
-        /**
-         * [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตปุ่ม Pagination
-         */
         function updatePaginationControls(pagination) {
-            // ถ้ามีแค่หน้าเดียว (หรือไม่มีข้อมูล) ไม่ต้องแสดงปุ่ม
             if (pagination.totalPages <= 1) {
                 paginationControls.classList.add('hidden');
                 return;
@@ -239,7 +208,6 @@
             paginationControls.classList.remove('hidden');
             pageInfo.textContent = `หน้า ${pagination.currentPage} / ${pagination.totalPages}`;
             
-            // เปิด/ปิด ปุ่ม
             prevButton.disabled = (pagination.currentPage === 1);
             nextButton.disabled = (pagination.currentPage === pagination.totalPages);
         }
@@ -247,4 +215,3 @@
     </script>
 </body>
 </html>
-
