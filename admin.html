@@ -284,27 +284,18 @@
             allFetchedData = []; // Clear cache
 
             try {
-                // [สำคัญ] เปลี่ยน action เป็น getAdminDataByDate
                 const response = await fetch(`${appScriptUrl}?action=getAdminDataByDate&date=${date}&page=${page}`);
                 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const responseData = await response.json();
                 
-                if (typeof responseData.pagination === 'undefined') {
-                    if (Array.isArray(responseData)) {
-                        throw new Error('กรุณา Deploy Code.gs (Google Apps Script) ของคุณใหม่ (เลือก "New version") โค้ดฝั่งเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันเก่า');
-                    }
-                    if (responseData.status !== 'error') {
-                         throw new Error('Response JSON from server is missing "pagination" property. Please re-deploy Code.gs');
-                    }
-                }
                 if (responseData.status === 'error') throw new Error(responseData.message);
 
                 const data = responseData.data;
                 const pagination = responseData.pagination;
                 
                 currentPage = pagination.currentPage;
-                allFetchedData = data; // Cache data for edit/delete
+                allFetchedData = data; 
 
                 if (data.length === 0 && pagination.totalItems === 0) {
                     showMessage('ไม่พบข้อมูลในวันที่เลือก');
@@ -332,7 +323,7 @@
             
             // Create Headers
             headers.forEach(header => {
-                if (header === 'ID') return; // Don't show ID column
+                if (header === 'ID') return; 
                 const th = document.createElement('th');
                 th.className = 'px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
                 th.textContent = header;
@@ -350,18 +341,23 @@
                 tr.className = 'border-b border-gray-200 hover:bg-gray-50';
                 
                 headers.forEach(header => {
-                    if (header === 'ID') return; // Don't show ID
+                    if (header === 'ID') return; 
                     
                     const td = document.createElement('td');
                     td.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-700';
                     let content = row[header];
                     
-                    if (header.toLowerCase() === 'ลายเซ็น' && content.startsWith('data:image/')) {
-                        const img = document.createElement('img');
-                        img.src = content;
-                        img.alt = 'Signature';
-                        img.className = 'h-8 w-auto';
-                        td.appendChild(img);
+                    // Logic ใหม่: รองรับ URL (http...) และ Base64 (data:image...)
+                    if (header.toLowerCase() === 'ลายเซ็น') {
+                         if (content && (content.startsWith('http') || content.startsWith('data:image/'))) {
+                            const img = document.createElement('img');
+                            img.src = content;
+                            img.alt = 'Signature';
+                            img.className = 'h-8 w-auto';
+                            td.appendChild(img);
+                         } else {
+                            td.textContent = 'No Signature';
+                         }
                     } else {
                         td.textContent = content;
                     }
@@ -376,28 +372,28 @@
                 const editButton = document.createElement('button');
                 editButton.innerHTML = 'แก้ไข';
                 editButton.className = 'text-blue-600 hover:text-blue-800 mr-2';
-                editButton.onclick = () => openEditModal(row.ID); // Use ID
+                editButton.onclick = () => openEditModal(row.ID);
                 tdActions.appendChild(editButton);
                 
                 // Delete Button
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = 'ลบ';
                 deleteButton.className = 'text-red-600 hover:text-red-800 mr-2';
-                deleteButton.onclick = () => deleteData(row.ID); // Use ID
+                deleteButton.onclick = () => deleteData(row.ID); 
                 tdActions.appendChild(deleteButton);
                 
                 // Print TH Button
                 const printThButton = document.createElement('button');
                 printThButton.innerHTML = 'พิมพ์ TH';
                 printThButton.className = 'text-green-600 hover:text-green-800 mr-2';
-                printThButton.onclick = () => generatePdf(row.ID, 'th'); // Use ID
+                printThButton.onclick = () => generatePdf(row.ID, 'th'); 
                 tdActions.appendChild(printThButton);
 
                 // Print EN Button
                 const printEnButton = document.createElement('button');
                 printEnButton.innerHTML = 'พิมพ์ EN';
                 printEnButton.className = 'text-green-600 hover:text-green-800';
-                printEnButton.onclick = () => generatePdf(row.ID, 'en'); // Use ID
+                printEnButton.onclick = () => generatePdf(row.ID, 'en'); 
                 tdActions.appendChild(printEnButton);
                 
                 tr.appendChild(tdActions);
