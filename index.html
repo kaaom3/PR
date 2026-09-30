@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Signature Pad CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <!-- Flatpickr CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <style>
         /* ใช้ฟอนต์ Inter */
         body {
@@ -123,7 +127,7 @@
                     <!-- Date of Birth -->
                     <div>
                         <label id="label-dob" for="dob" class="block text-sm font-medium text-gray-700"></label>
-                        <input type="date" id="dob" name="dob" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <input type="text" id="dob" name="dob" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white">
                     </div>
                     <!-- Age -->
                     <div>
@@ -191,6 +195,7 @@
         // --- Globals ---
         let selectedLang = 'en';
         let signaturePad;
+        let fpInstance = null; // ตัวแปรเก็บ Flatpickr
         const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
         
         // ตัวแปรสำหรับเก็บข้อตกลงที่ดึงมา
@@ -315,6 +320,20 @@
             } else {
                 document.body.style.fontFamily = "'Inter', sans-serif";
             }
+
+            // --- จัดการปฏิทิน (Flatpickr) ให้เปลี่ยนภาษาตามที่เลือก ---
+            if (fpInstance) {
+                fpInstance.destroy(); // ลบอันเก่าทิ้งก่อน
+            }
+            fpInstance = flatpickr("#dob", {
+                locale: lang === 'th' ? "th" : "default", // เปลี่ยนภาษา
+                dateFormat: "Y-m-d", // รูปแบบวันที่ที่ส่งเข้า Google Sheet
+                maxDate: "today", // ไม่ให้เลือกวันเกิดในอนาคต
+                disableMobile: true, // บังคับใช้ UI ของเราในมือถือ เพื่อให้ภาษาเปลี่ยนได้ชัวร์ๆ
+                onChange: function(selectedDates, dateStr, instance) {
+                    calculateAge(); // คำนวณอายุเมื่อมีการเลือกวันที่
+                }
+            });
 
             // Language Page
             document.getElementById('lang-title').textContent = t.langTitle;
