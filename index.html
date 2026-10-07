@@ -198,10 +198,56 @@
         let fpInstance = null; // ตัวแปรเก็บ Flatpickr
         const appScriptUrl = 'https://script.google.com/macros/s/AKfycbyrreHAORaQtEx36gZqSJ-h6OuUojYYyJlIILi6aHKcJMNEP3fkYXAzo8ZjOQ6UEp-xfA/exec';
         
-        // ตัวแปรสำหรับเก็บข้อตกลงที่ดึงมา
-        let agreementData = {
-            th: '<p>กำลังโหลดข้อตกลงภาษาไทย...</p>',
-            en: '<p>Loading English agreement...</p>'
+        // ข้อความข้อตกลง (ฝังในไฟล์ HTML โดยตรงเพื่อความรวดเร็ว ไม่ต้องดึงจาก Sheet)
+        // **ให้นำข้อความข้อตกลงภาษาไทยและอังกฤษมาวางที่นี่แทน (ใช้ <br> สำหรับขึ้นบรรทัดใหม่)**
+                let agreementData = {
+            th: 
+โฟลว์ไรเดอร์จัดเป็นเครื่องเล่นกีฬาผาดโผนและมีความเสี่ยงสูง คลื่นจำลองที่ผลิตโดยเครื่องโฟลว์ไรเดอร์อาจส่งผลให้ ผู้เล่นได้รับบาดเจ็บทั้งทางร่างกายและจิตใจ หรืออาจก่อให้เกิดอาการเจ็บป่วย โรคภัย หรืออาจทำให้ถึงแก่ชีวิต<br>
+<br>
+เอกสารนี้เกี่ยวข้องกับสิทธิตามกฎหมายของท่าน การลงลายมือชื่อท้ายเอกสารเป็นเครื่องแสดงว่าท่านได้อ่านและทำความเข้าใจความเสี่ยงทั้งปวงที่อาจเกิดขึ้นจากการใช้เครื่องเล่นดังกล่าวแล้ว          และยินยอมรับความเสี่ยงเหล่านั้นโดยสมัครใจและตกลงที่จะผูกพันตนตามข้อกำหนดทั้งปวงที่ระบุในข้อตกลงว่าด้วยการปลดเปลื้องความรับผิดและการชดใช้ค่าเสียหายฉบับนี้<br>
+<br>
+ลายมือชื่อของข้าพเจ้าท้ายเอกสารนี้เป็นเครื่องแสดงว่าข้าพเจ้าหรือผู้เยาว์ซึ่งอยู่ในการปกครองของข้าพเจ้าในฐานะผู้ปกครองได้สมัครใจที่จะเข้าใช้เครื่องเล่นโต้คลื่นที่มีชื่อว่าโฟลว์ไรเดอร์หรืออุปกรณ์โฟลว์บอร์ด (เรียกรวมกันว่า “การใช้เครื่องเล่น”) ตลอดจนใช้อุปกรณ์และเครื่องเล่นต่างๆ ของสวนน้ำวานานาวา ทั้งนี้ รวมถึงแต่ไม่จำกัดเพียงเครื่องเล่นโฟลว์ไรเดอร์ (เรียกรวมกันว่า “เครื่องเล่น”)<br>
+<br>
+เพื่อให้ได้รับอนุญาตใช้เครื่องเล่นดังกล่าว ข้าพเจ้ารับรู้ ยินยอม ตกลง และให้สัญญาในนามของข้าพเจ้า ทายาท ผู้ได้รับมอบหมาย ผู้แทน ตลอดจนกองมรดกของข้าพเจ้า ต่อโฟลว์ไรเดอร์ อิงค์, อควาติก ดีเวลอปเมนต์ กรุ๊ป อิงค์ และบริษัท วานา นาวา หัวหิน จำกัด รวมถึงผู้ให้เช่า สำนักงานใหญ่ของบริษัท บริษัทในเครือ บริษัทอื่นๆ ที่เกี่ยวข้อง ตลอดจนบุคคลหรือนิติบุคคลที่เกี่ยวข้องกับธุรกิจของบริษัท ทั้งในอดีตและปัจจุบัน รวมถึงหุ้นส่วน ผู้จัดการทรัพย์สิน กรรมการ เจ้าหน้าที่ สมาชิก ผู้ครอบครอบสิทธิ์ในทรัพย์สินทางปัญญา ตัวแทน ผู้รับมอบอำนาจ ตลอดจนลูกจ้างและพนักงานของบุคคลหรือนิติบุคคลที่กล่าวมาข้างต้น ทั้งในอดีตและปัจจุบัน (เรียกรวมกันว่า “ผู้ได้รับการปลดเปลื้อง”) ดังต่อไปนี้<br>
+ <br>
+การตระหนักถึงความเสี่ยง: ข้าพเจ้าเข้าใจและตระหนักดีว่าการใช้เครื่องเล่นที่ข้าพเจ้ากำลังจะเข้าใช้โดยสมัครใจนี้มีความเสี่ยง ทั้งความเสี่ยงที่ข้าพเจ้าได้ทราบดีอยู่แล้ว รวมถึงความเสี่ยงที่มิอาจคาดการณ์ได้ โดยความเสี่ยงดังกล่าวอาจส่งผลให้ทรัพย์สินของข้าพเจ้าได้รับความเสียหาย ทั้งยังอาจส่งผลให้ข้าพเจ้าได้รับบาดเจ็บทั้งทางร่างกายและจิตใจและอาจนำมาซึ่งอาการเจ็บป่วย โรคภัย รวมไปจนถึงการเสียชีวิต ซึ่งข้าพเจ้าเข้าใจและตระหนักดีว่าความเสี่ยงดังกล่าวอาจก่อให้เกิดการเรียกร้องบางประการกับผู้ได้รับการปลดเปลื้อง อย่างไรก็ดี ข้าพเจ้าเป็นผู้แสดงความสมัครใจเลือกที่จะแบกรับความเสี่ยงดังกล่าวไว้เอง โดยมุ่งพิจารณาที่ความสนุกสนาน ความตื่นเต้น และประโยชน์อื่นใดอันเกิดจากการใช้เครื่องเล่นเป็นสำคัญ โดยเห็นว่าประโยชน์ทั้งปวงอันข้าพเจ้าจะพึงได้รับจากการใช้เครื่องเล่นดังกล่าวมีความสำคัญต่อข้าพเจ้ามากกว่าความเสี่ยงต่างๆ ที่อาจเกิดขึ้นจากการใช้เครื่องเล่น ความเสี่ยงที่กล่าวถึงในส่วนนี้อาจรวมถึงแต่ไม่จำกัดเพียง<br>
+<br>
+(1) การกระทำ การละเว้นการกระทำ หรือการประมาทเลินเล่อในทุกรูปแบบของผู้ได้รับการปลดเปลื้อง หรือตัวแทน หรือพนักงานของผู้ได้รับการปลดเปลื้อง (2) ความเสี่ยงอันเป็นธรรมชาติของการใช้เครื่องเล่น ซึ่งรวมถึงแต่ไม่จำกัดเพียง ก) กระดูกหัก ข) ข้อเคลื่อน ค) เส้นเอ็นฉีกขาด ง) อาการเคล็ดขัดยอก จ) บาดแผลบริเวณศีรษะ ร่างกาย และ/หรือ แขนขา ฉ) เล็บฉีก และ ช) อาการบวมฟกช้ำ อันเกิดจากการใช้เครื่องเล่นดังกล่าว (3) ความชำรุดบกพร่องหรือสภาพของเครื่องเล่นและการใช้เครื่องเล่นทั้งที่เห็นได้ชัดแจ้งและไม่ชัดแจ้ง (4) การให้คำแนะนำและการดูแลที่ไม่เหมาะสมหรือไม่เพียงพอเกี่ยวกับเครื่องเล่นและการใช้เครื่องเล่น (5) พฤติกรรมของผู้ใช้เครื่องเล่นรายอื่น (6) อุบัติเหตุหรือพฤติการณ์ที่เกิดขึ้นขณะใช้เครื่องเล่น รวมถึงแต่ไม่จำกัดเพียงอุบัติเหตุหรือพฤติการณ์ที่เกิดขึ้นในพื้นที่เปียก เช่น บริเวณพื้นที่รอบสระน้ำ พื้นผิวที่ปูกระเบื้องหรือพื้นผิวคอนกรีตที่เปียกน้ำ (7) การปฐมพยาบาล การให้ความช่วยเหลือกรณีฉุกเฉิน หรือบริการใดๆ ที่ผู้ได้รับการปลดเปลื้อง หรือตัวแทน หรือพนักงานของผู้ได้รับการปลดเปลื้องได้กระทำหรือมิได้กระทำ<br>
+<br>
+ข้าพเจ้าเข้าใจและตระหนักว่าความเสี่ยงที่กล่าวมาข้างต้นเป็นเพียงตัวอย่างของความเสี่ยงเท่านั้นและอาจไม่ครอบคลุมความเสี่ยงอื่นๆ ที่รู้หรือไม่รู้ พบหรือไม่พบ คาดการณ์ได้หรือคาดการณ์ไม่ได้ ซึ่งอาจส่งผลให้ทรัพย์สินของข้าพเจ้าได้รับความเสียหาย ทั้งยังอาจส่งผลให้ข้าพเจ้าได้รับบาดเจ็บทั้งทางร่างกายและจิตใจและอาจนำมาซึ่งอาการเจ็บป่วย โรคภัย รวมไปจนถึงการเสียชีวิต อนึ่ง ข้าพเจ้ายังตระหนักว่าข้าพเจ้าเป็นผู้มีสุขภาพกายและใจแข็งแรงและมิได้เจ็บป่วยด้วยโรคภัยหรืออาการผิดปกติใดๆ ซึ่งอาจส่งผลต่อการเล่นหรือใช้เครื่องเล่นดังกล่าว นอกจากนี้ ข้าพเจ้ายังตระหนักอีกว่าข้าพเจ้ามิได้ซื้อหรือเช่าเครื่องเล่นแต่อย่างใด หากแต่เพียงได้สิทธิไม่เป็นการเฉพาะตัวในการใช้เครื่องเล่นเพียงชั่วคราวเท่านั้น โดยข้าพเจ้าทราบดีว่าผู้ได้รับการปลดเปลื้องเป็นเพียงผู้ให้บริการสถานที่เพื่อการพักผ่อนหย่อนใจเท่านั้น<br>
+<br>
+การยอมรับและความเข้าใจโดยสมัครใจถึงความเสี่ยงและความรับผิดชอบ: ข้าพเจ้ายินยอม ตกลง และสัญญาโดยชัดแจ้งและสมัครใจที่จะเป็นผู้รับผิดชอบและรับความเสี่ยงทั้งปวงซึ่งอาจส่งผลให้ทรัพย์สินของข้าพเจ้าได้รับความเสียหาย ทั้งยังอาจส่งผลให้ข้าพเจ้าได้รับบาดเจ็บทั้งทางร่างกายและจิตใจและอาจนำมาซึ่งอาการเจ็บป่วย โรคภัย รวมไปจนถึงการเสียชีวิต อันเป็นผลจากการเข้ามีส่วนเกี่ยวข้องหรือใช้เครื่องเล่นดังกล่าว<br>
+<br>
+การปลดเปลื้องและการชดใช้ค่าเสียหาย: โดยความสมัครใจของข้าพเจ้า ณ บัดนี้จวบจนตลอดไป ข้าพเจ้าขอปลดเปลื้องและตกลงที่จะไม่ฟ้องร้องดำเนินคดีกับผู้ได้รับการปลดเปลื้อง รวมตลอดจนบุคคลหรือนิติบุคคลใดๆ ที่มีความเกี่ยวข้องกับผู้ได้รับการปลดเปลื้องในพฤติการณ์ทั้งปวงที่เกี่ยวข้องกับความรับผิด ข้อเรียกร้อง การดำเนินการ หรือสิทธิอย่างหนึ่งอย่างใดในการดำเนินการซึ่งเกี่ยวข้อง มีสาเหตุจาก หรือมีความเกี่ยวโยงกับเครื่องเล่นหรือการใช้เครื่องเล่น ทั้งนี้ รวมถึงแต่ไม่จำกัดเพียงพฤติการณ์อันเกิดจากความประมาทเลินเล่อหรือความผิดของผู้ได้รับการปลดเปลื้อง อนึ่ง ข้าพเจ้าตระหนักดีว่าเอกสารปลดเปลื้องฉบับนี้จะสามารถใช้บังคับได้ตลอดไปและจะใช้บังคับกับการมีส่วนเกี่ยวข้องกับเครื่องเล่นและการใช้เครื่องเล่นทั้งในปัจจุบันและอนาคต ข้าพเจ้าเข้าใจดีว่าการปลดเปลื้องความรับผิดตามข้อตกลงนี้จะส่งผลให้ข้าพเจ้า บุตร ทายาท หรือกองมรดกของข้าพเจ้าไม่สามารถดำเนินคดีฟ้องร้องหรือเรียกร้องค่าเสียหายใดๆ จากการบาดเจ็บหรือเสียชีวิตอันเกิดจากเครื่องเล่นหรือการใช้งานเครื่องเล่นดังกล่าว<br>
+<br>
+นอกจากนี้ ข้าพเจ้ายินยอม สัญญา และตกลงที่จะไม่ดำเนินการใดๆ อันเป็นเหตุให้ผู้ได้รับการปลดเปลื้อง ตลอดจนบุคคลหรือนิติบุคคลใดๆ ได้รับความเดือดร้อน ทั้งยังจะชดใช้ค่าเสียหายให้แก่บุคคลดังกล่าว อันเป็นค่าเสียหายที่เกิดจากการต่อสูคดี อันรวมถึงค่าธรรมเนียมทนายความ หรือค่าใช้จ่ายอื่นใดอันเกิดจากการเรียกร้องกรณีการบาดเจ็บทางร่างกายหรือจิตใจ การเสียชีวิต หรือความเสียหายต่อทรัพย์สินอย่างหนึ่งอย่างใด ซึ่งข้าพเจ้า บุตร ทายาท หรือกองมรดกของข้าพเจ้าเป็นผู้ดำเนินคดี ทั้งนี้ หน้าที่ในการต่อสู้ รวมถึงการชดใช้ค่าเสียหายยังรวมไปถึงข้อเรียกร้อง ความสูญเสีย หรือคดีความซึ่งได้กล่าวหาว่าข้าพเจ้าเป็นผู้กระทำการโดยประมาทเลินเล่อหรือปราศจากซึ่งเจตนาก่อให้เกิดการบาดเจ็บ การเสียชีวิต หรือความเสียหายต่อผู้ชมหรือบุคคลภายนอกในขณะที่ข้าพเจ้าใช้เครื่องเล่นดังกล่าว<br>
+<br>
+การเผยแพร่ภาพและเสียง: ข้าพเจ้ายินยอมสละสิทธิ์ในเสียง ภาพถ่าย และวีดิทัศน์ ซึ่งบันทึกจากการที่ข้าพเจ้าเข้าใช้หรืออยู่ในบริเวณที่ตั้งของเครื่องเล่น และโดยข้อตกลงฉบับนี้ ข้าพเจ้ามอบสิทธิในเสียง ภาพถ่าย และวีดิทัศน์ดังกล่าวให้แก่ผู้ได้รับการปลดเปลื้องเป็นการถาวร (ไม่ว่าผู้ใดจะเป็นผู้บันทึกภาพหรือเสียงดังกล่าว) เพื่อประโยชน์ด้านการโฆษณาประชาสัมพันธ์ ส่งเสริมการขาย การตลาด การค้า หรือการพาณิชย์ โดยไม่จำต้องชำระค่าตอบแทนหรือค่าธรรมเนียมใดๆ แก่ข้าพเจ้า <br>
+<br>
+ข้อตกลงเบ็ดเสร็จ การแยกออกจากกันได้ของข้อตกลง และสถานที่ดำเนินกระบวนการพิจารณาคดีกรณีมีข้อพิพาท: ข้าพเจ้าเข้าใจดีว่าข้อตกลงนี้เป็นข้อตกลงเบ็ดเสร็จระหว่างผู้ลงลายมือชื่อท้ายข้อตกลงและผู้ได้รับการปลดเปลื้อง การเปลี่ยนแปลงแก้ไขรายละเอียดใดๆ ของข้อกำหนดโดยผู้แทน ตัวแทน หรือพนักงานของผู้ได้รับการปลดเปลื้องหรือของผู้ลงลายมือชื่อท้ายข้อตกลงนี้จะกระทำมิได้ อนึ่ง ข้าพเจ้าเข้าใจและตกลงให้ข้อตกลงนี้เป็นข้อตกลงที่สามารถแยกออกจากกันได้ กล่าวคือ ในกรณีที่ข้อกำหนดข้อหนึ่งข้อใดไม่อาจบังคับใช้ได้ การไม่สามารถบังคับใช้ได้ของข้อกำหนดดังกล่าวหาได้กระทบต่อการบังคับใช้และความสมบูรณ์ของข้อกำหนดอื่นใดในข้อตกลงฉบับนี้ไม่ นอกจากนี้ ข้าพเจ้าตกลงว่าในกรณีมีข้อพิพาท ให้นำข้อพิพาทดังกล่าวขึ้นสู่การพิจารณาของศาลในอำเภอหัวหิน จังหวัดประจวบคีรีขันธ์ หรือศาลที่มีอำนาจพิจารณาคดีในเขตจังหวัดประจวบคีรีขันธ์ ภายใต้บังคับของกฎหมายแห่งราชอาณาจักรไทย<br>
+<br>
+
+            ,
+            en: 
+RIDING ON THE FLOWRIDERR IS AN EXTREME SPORT AND HIGH RISK RECREATIONAL ACTIVITY. SHEET WAVE SURFING ON OR<br>
+IN PROXIMITY TO THE FLOWRIDERR MAY RESULT IN PHYSICAL OR MENTAL INJURY, ILLNESS OR DISEASE, OR DEATH.<br>
+<br>
+This document affects your legal rights. By writing your signature below, you acknowledge that you have read and understood the disclosures of risks, voluntarily accept those risks, and agree to be bound by all terms of this Release of Liability and Indemnity Agreement.<br>
+<br>
+My signature acknowledges that I or the minor for whom I am a legal guardian (collectively referred to as “I”, “me”, or “my”) have voluntarily chosen to participate in the sheet wave surfing attraction known as the FlowRiderR or use a Flowboard™ (collectively referred to as the “Activities”) and to use the facilities at Vana Nava Water Jungle including but not limited to the FlowRiderR (collectively referred to as the “Facilities”). <br>
+In consideration for the permission to participate in the Activities and use the Facilities, I acknowledge, agree, promise and covenant on behalf of myself, my heirs, assigns, personal representatives and estate with FLOWRIDER, INC., .AQUATIC DEVELOPMENT GROUP, INC. and Vana Hua Hin Co., LTD. each of their lessors, parent companies, subsidiaries, related companies and business concerns, past and present, and each of them, as well as each of their partners, trustees, directors, officers, members, intellectual property holders, agents, attorneys, servants and employees, past and present, and each of them (collectively, “Releasees”) as follows:<br>
+ACKNOWLEDGEMENTS OF RISKS: I UNDERSTAND AND ACKNOWLEDGE that the Activities in which I am about to voluntarily engage bear certain known risks and unanticipated risks that could result in PHYSICAL OR MENTAL INJURY, DEATH, ILLNESS OR DISEASE, OR DAMAGE to me or my property. I understand and acknowledge those risks may result in claims against Releasees. However, I am making an informed choice to voluntarily accept such risks due to the thrills, excitement and benefits of the Activities, and I agree that the benefit of the Activities outweigh the risks, which include but in no way are limited to:<br>
+(1) The acts, omissions or negligence in any degree of Releasees, or their agents or employees; (2) the risks inherent in the Activities, including but not limited to any injuries such as a) broken bones, b) dislocations, c) torn ligaments and tendons, d) sprains and strains, e) cuts to the head, body and/or limbs, f) torn nails, and g) bumps and bruises suffered while riding these extreme sporting attractions; (3) latent or apparent defects or conditions of the Activities or the Facilities; (4) improper or inadequate instruction or supervision regarding the Activities or use of the Facilities (5) the behavior of co-participants; (6) accidents or incidents in the Facilities, including but not limited to accidents or incidents in wet areas, such as pool decks, tiled, concrete or other wet surfaces; and/or (7) first aid, emergency treatment or services rendered or failed to be rendered by Releasees, or their agents or employees.<br>
+I UNDERSTAND AND ACKNOWLEDGE that the above list is not complete or exhaustive, and that other risks, known or unknown, identified or unidentified, anticipated or unanticipated may also result in injury, death, illness, disease, or damage to me or to my property. I FURTHER ACKNOWLEDGE that I am in good physical and mental health, and not suffering from any condition, disease or disablement which would or could potentially affect participation in the Activities or use of the Facilities. Further, I acknowledge that I am not purchasing or leasing the attraction, but rather, am being afforded a non-exclusive right to use the attraction. Additionally, I acknowledge that Releasees are providing recreational services.<br>
+VOLUNTARY ACCEPTANCE AND ASSUMPTION OF RISK AND RESPONSIBILITY: I EXPRESSLY AND VOLUNTARILY AGREE, COVENANT AND PROMISE TO ACCEPT AND ASSUME ALL RESPONSIBILITIES, AND RISK FOR INJURY, DEATH, ILLNESS OR DISEASE OR DAMAGE to me or to my property arising from the participation in the Activities or use of the Facilities. <br>
+RELEASE AND INDEMNITY: I VOLUNTARILY RELEASE AND FOREVER DISCHARGE AND COVENANT NOT TO SUE Releasees and all other persons or entities affiliated therewith, from any and all liability, claims, demands, actions or rights or action, which are related to, arise out of, or are in any way connected with the participation in the Activities or use of the Facilities, including, but specifically not limited to any and all negligence or fault of Releasees. I UNDERSTAND THIS IS A RELEASE OF LIABILITY THAT IS VALID FOREVER, and will apply to all current and future participation in the Activities or use of the Facilities. I understand that this RELEASE OF LIABILITY will prevent me, my child, my heirs or my estate from bringing any action at law, suit in equity, or other jurisdictional proceeding or making any claim for damages, injury or death in the event of damage, injury or death arising from participation in the Activities or use of the Facilities.<br>
+I FURTHER AGREE, PROMISE AND COVENANT TO HOLD HARMLESS AND TO INDEMNIFY Releases, and all other persons or entities from all defense costs, including attorneys’ fees, or any other costs incurred in connection with claims for mental or bodily injury, wrongful death or property damage that may be filed by me, my child, my heirs or my estate. Such indemnity and defense obligation shall further extend to any claim, loss or lawsuit which alleges that I negligently or intentionally caused any injury, death or damage to spectators or other third parties in the course of my participation in the Activities.<br>
+AUDIO AND PHOTOGRAPHIC IMAGE RELEASE: I agree to a blanket release of all of my audio, video, and photographic image rights arising out of my participation in or around the Activities and I hereby grant to Releasees the right to use my audio video, and photographic images in perpetuity (no matter by whom taken or recorded) in any manner for publicity, promotions, advertising, marketing, trade or commercial purposes, without reimbursement of any kind due to me or the need to pay me any fee whatsoever.<br>
+ENTIRE AGREEMENT, SEVERABILITY AND VENUE: I understand that this is the entire Agreement between the undersigned and Releasees, and that it cannot be modified or changed in any way by the representations or statements of Releasees or any employee or agent of Releasees, or by the undersigned. I understand and agree that this Agreement is severable and that if any clause is found to be invalid, the balance of the contract will remain in effect and will be valid and enforceable. I agree that any action will be brought in a court in the city of Hua Hin, Province of Prachuabkhirikhan or alternatively, in a court of competent jurisdiction in the Province of Prachuabkhirikhan. Any disputes will be subject to and determined under the laws of Thailand.<br>
+<br>
+I have read this entire document, understand it completely, and agree to be bound by its terms.<br>
+
+            
         };
 
         // --- Translations Object ---
@@ -280,34 +326,7 @@
             document.getElementById('loading-overlay').classList.toggle('hidden', !show);
         }
 
-        // --- Data Fetching Function ---
-        async function fetchAgreements() {
-            showLoading(true, translations[selectedLang].loadingAgreements);
-            try {
-                const response = await fetch(appScriptUrl); // ใช้ GET request (default)
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                
-                // ตรวจสอบว่ามีข้อมูล th, en หรือไม่
-                if (data.th && data.en) {
-                    // แปลง \n (newline) ที่อาจมาจาก Google Sheet ให้เป็น <br>
-                    agreementData.th = data.th.replace(/\n/g, '<br>');
-                    agreementData.en = data.en.replace(/\n/g, '<br>');
-                } else {
-                    throw new Error('Agreement data format is incorrect.');
-                }
-                
-            } catch (error) {
-                console.error('Error fetching agreements:', error);
-                // หากโหลดไม่สำเร็จ ให้ใช้ข้อความแจ้งข้อผิดพลาด
-                agreementData.th = `<p class="text-red-500">ไม่สามารถโหลดข้อตกลงได้ กรุณาลองใหม่อีกครั้ง</p>`;
-                agreementData.en = `<p class="text-red-500">Could not load agreements. Please try again.</p>`;
-            } finally {
-                showLoading(false);
-            }
-        }
+
 
         // --- Language Functions ---
         function setLanguage(lang) {
@@ -542,8 +561,7 @@
         // เริ่มต้นด้วยภาษาอังกฤษ
         setLanguage('en'); 
         showPage('language-page');
-        // เรียกดึงข้อมูลข้อตกลงทันทีที่เว็บโหลด
-        fetchAgreements(); 
+
 
     </script>
 </body>
